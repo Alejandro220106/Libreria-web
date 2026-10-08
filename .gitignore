@@ -1,0 +1,8 @@
+.env
+vendor/
+node_modules/
+!.env.example
+*.sql
+*.zip
+*.wpress
+postman/*.postman_environment.json
