@@ -16,7 +16,7 @@ class Libreria_Author_Field {
 		return array(
 			'meta_key'      => '_lib_author',
 			'rest_property' => 'book_author',
-			'label'         => 'Author',
+			'label'         => __( 'Author', 'libreria-author' ),
 			'type'          => 'text',
 			'required'      => true,
 			'max_length'    => 100,
