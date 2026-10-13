@@ -20,6 +20,8 @@ class Libreria_Author_Admin {
 	public function render_field() {
 		$field = Libreria_Author_Field::definition();
 
+		echo '<div class="options_group">';
+
 		woocommerce_wp_text_input(
 			array(
 				'id'                => $field['meta_key'],
@@ -33,6 +35,8 @@ class Libreria_Author_Admin {
 		);
 
 		wp_nonce_field( 'libreria_author_save', 'libreria_author_nonce' );
+
+		echo '</div>';
 	}
 
 	/**
