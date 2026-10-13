@@ -1,0 +1,47 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/theme.json",
+	"version": 3,
+	"settings": {
+		"color": {
+			"palette": [
+				{ "slug": "base", "name": "Base", "color": "#FBF6EC" },
+				{ "slug": "contrast", "name": "Contrast", "color": "#2B1D1A" },
+				{ "slug": "accent-1", "name": "Accent 1", "color": "#D6B26A" },
+				{ "slug": "accent-2", "name": "Accent 2", "color": "#EADFC8" },
+				{ "slug": "accent-3", "name": "Accent 3", "color": "#7A2630" },
+				{ "slug": "accent-4", "name": "Accent 4", "color": "#6B5F58" },
+				{ "slug": "accent-5", "name": "Accent 5", "color": "#F3EAD8" },
+				{ "slug": "accent-6", "name": "Accent 6", "color": "color-mix(in srgb, currentColor 20%, transparent)" }
+			]
+		}
+	},
+	"styles": {
+		"elements": {
+			"heading": {
+				"typography": {
+					"fontFamily": "Georgia, 'Times New Roman', serif",
+					"fontWeight": "700"
+				}
+			},
+			"button": {
+				"color": {
+					"background": "var:preset|color|accent-3",
+					"text": "var:preset|color|base"
+				},
+				":hover": {
+					"color": {
+						"background": "color-mix(in srgb, var(--wp--preset--color--accent-3) 85%, black)",
+						"text": "var:preset|color|base"
+					}
+				}
+			},
+			"link": {
+				":hover": {
+					"color": {
+						"text": "var:preset|color|accent-3"
+					}
+				}
+			}
+		}
+	}
+}
