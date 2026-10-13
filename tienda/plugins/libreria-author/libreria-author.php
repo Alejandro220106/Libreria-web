@@ -32,5 +32,8 @@ function libreria_author_init() {
 		return;
 	}
 
-	// The plugin features will be loaded here in the next steps.
+	( new Libreria_Author_Admin() )->register();
+	( new Libreria_Author_Public() )->register();
+	( new Libreria_Author_Rest() )->register();
+
 }
