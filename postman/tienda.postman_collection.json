@@ -1,0 +1,56 @@
+{
+  "info": {
+    "name": "tienda",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      { "key": "username", "value": "{{consumer_key}}", "type": "string" },
+      { "key": "password", "value": "{{consumer_secret}}", "type": "string" }
+    ]
+  },
+  "item": [
+    {
+      "name": "Listar productos",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "const list = pm.response.json();",
+        "if (list.length) pm.environment.set(\"product_id\", list[0].id);"
+      ] } }],
+      "request": { "method": "GET", "url": "{{base_url}}/wp-json/wc/v3/products?per_page=5&page=2" }
+    },
+    {
+      "name": "Obtener producto",
+      "request": { "method": "GET", "url": "{{base_url}}/wp-json/wc/v3/products/{{product_id}}" }
+    },
+    {
+      "name": "Crear producto",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.environment.set(\"product_id\", pm.response.json().id);"
+      ] } }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Libro de prueba\",\n  \"type\": \"simple\",\n  \"regular_price\": \"9500\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": "{{base_url}}/wp-json/wc/v3/products"
+      }
+    },
+    {
+      "name": "Actualizar campo propio",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"book_author\": \"Gabriel Garcia Marquez\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": "{{base_url}}/wp-json/wc/v3/products/{{product_id}}"
+      }
+    },
+    {
+      "name": "Producto inexistente",
+      "request": { "method": "GET", "url": "{{base_url}}/wp-json/wc/v3/products/999999" }
+    },
+    {
+      "name": "Sin credenciales",
+      "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{base_url}}/wp-json/wc/v3/products" }
+    }
+  ]
+}
