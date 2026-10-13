@@ -40,7 +40,7 @@
       "request": {
         "method": "PUT",
         "header": [{ "key": "Content-Type", "value": "application/json" }],
-        "body": { "mode": "raw", "raw": "{\n  \"CAMPO_PLUGIN\": \"VALOR_NUEVO\"\n}", "options": { "raw": { "language": "json" } } },
+        "body": { "mode": "raw", "raw": "{\n  \"book_author\": \"Gabriel Garcia Marquez\"\n}", "options": { "raw": { "language": "json" } } },
         "url": "{{base_url}}/wp-json/wc/v3/products/{{product_id}}"
       }
     },
