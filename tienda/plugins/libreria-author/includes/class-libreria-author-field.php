@@ -22,4 +22,43 @@ class Libreria_Author_Field {
 			'max_length'    => 100,
 		);
 	}
+
+	/**
+	 * Cleans a raw value: removes HTML tags and extra spaces.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string
+	 */
+	public static function sanitize( $value ) {
+		if ( ! is_scalar( $value ) ) {
+			return '';
+		}
+
+		return sanitize_text_field( (string) $value );
+	}
+
+	/**
+	 * Checks the rule: required and no longer than the maximum length.
+	 *
+	 * @param string $value Sanitized value.
+	 * @return true|WP_Error
+	 */
+	public static function validate( $value ) {
+		$field  = self::definition();
+		$length = mb_strlen( $value );
+
+		if ( $field['required'] && 0 === $length ) {
+			return new WP_Error( 'libreria_author_empty', 'The author is required.', array( 'status' => 400 ) );
+		}
+
+		if ( $length > $field['max_length'] ) {
+			return new WP_Error(
+				'libreria_author_too_long',
+				sprintf( 'The author cannot be longer than %d characters.', $field['max_length'] ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return true;
+	}
 }
