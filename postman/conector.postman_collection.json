@@ -1,0 +1,219 @@
+{
+	"info": {
+		"_postman_id": "b5742646-6451-4aca-91d7-427973a00d7b",
+		"name": "Mailtrap",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "55848970",
+		"_collection_link": "https://solisjos2-0-5306176.postman.co/workspace/Jos%C3%A9's-Workspace~55fa1459-c6d3-4b6f-8bf4-429b7ae6dd6d/collection/55848970-b5742646-6451-4aca-91d7-427973a00d7b?action=share&source=collection_link&creator=55848970"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Obtener_account_id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://mailtrap.io/api/accounts",
+							"protocol": "https",
+							"host": [
+								"mailtrap",
+								"io"
+							],
+							"path": [
+								"api",
+								"accounts"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Accion",
+			"item": [
+				{
+					"name": "Leer los mensajes de la bandeja",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Inbox has at least one message', function () {",
+									"    pm.expect(pm.response.json()).to.be.an('array').that.is.not.empty;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://mailtrap.io/api/accounts/{{account_id}}/inboxes/{{inbox_id}}/messages",
+							"protocol": "https",
+							"host": [
+								"mailtrap",
+								"io"
+							],
+							"path": [
+								"api",
+								"accounts",
+								"{{account_id}}",
+								"inboxes",
+								"{{inbox_id}}",
+								"messages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Enviar correo al sandbox",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Response reports success', function () {",
+									"    pm.expect(pm.response.json().success).to.eql(true);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"from\": { \"email\": \"tienda@libreria.test\", \"name\": \"Libreria Web\" },\n  \"to\": [{ \"email\": \"cliente@ejemplo.test\" }],\n  \"subject\": \"Pedido #1001 recibido\",\n  \"text\": \"Gracias por su compra.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://sandbox.api.mailtrap.io/api/send/{{inbox_id}}",
+							"protocol": "https",
+							"host": [
+								"sandbox",
+								"api",
+								"mailtrap",
+								"io"
+							],
+							"path": [
+								"api",
+								"send",
+								"{{inbox_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Errores",
+			"item": [
+				{
+					"name": "Enviar con token inválido",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status is 401', function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"from\": { \"email\": \"tienda@libreria.test\", \"name\": \"Libreria Web\" },\n  \"to\": [{ \"email\": \"cliente@ejemplo.test\" }],\n  \"subject\": \"Pedido #1001 recibido\",\n  \"text\": \"Gracias por su compra.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://sandbox.api.mailtrap.io/api/send/{{inbox_id}}",
+							"protocol": "https",
+							"host": [
+								"sandbox",
+								"api",
+								"mailtrap",
+								"io"
+							],
+							"path": [
+								"api",
+								"send",
+								"{{inbox_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "token-invalido",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
