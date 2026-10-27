@@ -3,10 +3,15 @@
 use App\Models\IntegrationLog;
 use App\Models\WebhookDelivery;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Bus;
 
 uses(RefreshDatabase::class);
 
-beforeEach(fn () => config(['store.webhook_secret' => 'whsec_test']));
+beforeEach(function () {
+    config(['store.webhook_secret' => 'whsec_test']);
+    // These tests are about the delivery, not the order processing: the job does not run.
+    Bus::fake();
+});
 
 function deliver(string $body, ?string $deliveryId = 'delivery-1')
 {

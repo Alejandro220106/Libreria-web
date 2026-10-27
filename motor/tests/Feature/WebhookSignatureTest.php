@@ -2,10 +2,15 @@
 
 use App\Models\IntegrationLog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Bus;
 
 uses(RefreshDatabase::class);
 
-beforeEach(fn () => config(['store.webhook_secret' => 'whsec_test']));
+beforeEach(function () {
+    config(['store.webhook_secret' => 'whsec_test']);
+    // These tests are about the signature, not the order processing: the job does not run.
+    Bus::fake();
+});
 
 function signed(string $body, string $secret = 'whsec_test'): array
 {
