@@ -1,0 +1,569 @@
+openapi: 3.1.0
+info:
+  title: Motor de integración · Contrato obligatorio ITI-621
+  version: 1.0.0
+  license:
+    name: Uso académico · curso ITI-621, UTN
+  description: |
+    Contrato obligatorio de la API del motor de integración del curso ITI-621
+    Tecnologías y Sistemas Web III (UTN, Sede San Carlos, III cuatrimestre 2026).
+    Se publica el martes 20 de octubre de 2026 y no se modifica: si encuentran un
+    error, avisen al docente y la corrección se publica para todos a la vez.
+
+    Cada equipo copia este contrato sin cambios en motor/openapi.yaml y documenta
+    ahí sus endpoints adicionales (por ejemplo, el webhook de WooCommerce).
+
+    Secciones del contrato (se citan como «contrato C1», «contrato C2»…):
+
+    - C1 Rutas y formato. Todas las rutas están bajo /api/v1. Toda respuesta,
+      incluidos los errores, es JSON con Content-Type application/json. Fechas en
+      ISO 8601 con zona horaria; montos en colones, enteros; nombres de campos en
+      español y en snake_case.
+    - C2 Paginación. Todo listado recibe pagina (entero ≥ 1, por defecto 1) y
+      por_pagina (entero de 1 a 100, por defecto 15), y responde con datos, meta y
+      enlaces. Un valor fuera de rango responde 422; una página sin resultados
+      responde 200 con datos vacío.
+    - C3 Formato único de error. Todo error (400, 401, 403, 404, 422, 429 y 500)
+      responde con el objeto Error. Ninguna respuesta incluye trazas, nombres de
+      archivo, líneas ni clases internas.
+    - C4 Productos. GET /productos responde desde la base de datos del motor, sin
+      consultar la tienda en cada petición, e incluye el campo propio del plugin.
+    - C5 Pedidos. GET /pedidos/{id} responde un pedido recibido por webhook, con el
+      estado de su dirección y el resultado del conector.
+    - C6 Bitácora. GET /bitacora responde los registros de integración, del más
+      reciente al más antiguo, con los filtros definidos.
+    - C7 Dirección normalizada. La salida del modelo cumple el esquema
+      DireccionNormalizada antes de guardarse; con confianza menor que 0,85 la
+      dirección queda pendiente de revisión.
+    - C8 Datos que no se exponen. Ninguna respuesta incluye nombre, correo ni
+      teléfono del cliente, llaves, secretos, firmas ni cuerpos completos de
+      peticiones.
+servers:
+  - url: http://127.0.0.1:8000/api/v1
+    description: Motor en local (php artisan serve)
+security:
+  - {}
+  - tokenSanctum: []
+tags:
+  - name: Productos
+    description: Copia del catálogo de la tienda sincronizada en el motor (contrato C4).
+  - name: Pedidos
+    description: Pedidos recibidos por webhook (contrato C5).
+  - name: Bitácora
+    description: Registro de cada intercambio con otros sistemas (contrato C6).
+paths:
+  /productos:
+    get:
+      tags: [Productos]
+      operationId: listarProductos
+      summary: Lista los productos sincronizados desde la tienda
+      description: Responde desde la base de datos del motor (contrato C4), ordenados por id ascendente.
+      parameters:
+        - $ref: '#/components/parameters/Pagina'
+        - $ref: '#/components/parameters/PorPagina'
+        - name: sku
+          in: query
+          required: false
+          description: Filtra por SKU exacto.
+          schema:
+            type: string
+            maxLength: 100
+      responses:
+        '200':
+          description: Página de productos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaProductos'
+              example:
+                datos:
+                  - id: 7
+                    id_tienda: 42
+                    sku: CAF-TAR-250
+                    nombre: Café Tarrazú 250 g
+                    tipo: simple
+                    precio: 5200
+                    existencias: 12
+                    categorias: [Café en grano]
+                    campo_propio:
+                      nombre: origen_grano
+                      valor: tarrazu
+                    sincronizado_en: '2026-11-03T15:20:11-06:00'
+                meta:
+                  pagina: 1
+                  por_pagina: 15
+                  total: 1
+                  total_paginas: 1
+                enlaces:
+                  anterior: null
+                  siguiente: null
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '422':
+          $ref: '#/components/responses/ErrorValidacion'
+        '429':
+          $ref: '#/components/responses/LimiteExcedido'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+  /pedidos/{id}:
+    get:
+      tags: [Pedidos]
+      operationId: obtenerPedido
+      summary: Obtiene un pedido recibido por webhook
+      description: El id es el identificador del pedido en WooCommerce (contrato C5).
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identificador del pedido en la tienda.
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: El pedido, con el estado de su dirección y del conector.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '429':
+          $ref: '#/components/responses/LimiteExcedido'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+  /bitacora:
+    get:
+      tags: [Bitácora]
+      operationId: listarBitacora
+      summary: Lista los registros de la bitácora de integraciones
+      description: Del más reciente al más antiguo (contrato C6). Los filtros se combinan con «y».
+      parameters:
+        - $ref: '#/components/parameters/Pagina'
+        - $ref: '#/components/parameters/PorPagina'
+        - name: sistema
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/Sistema'
+        - name: estado
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/EstadoBitacora'
+        - name: direccion
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [entrante, saliente]
+        - name: correlacion
+          in: query
+          required: false
+          description: Identificador de correlación exacto (el de la entrega o el del pedido).
+          schema:
+            type: string
+            maxLength: 100
+        - name: desde
+          in: query
+          required: false
+          description: Fecha y hora mínima, ISO 8601.
+          schema:
+            type: string
+            format: date-time
+        - name: hasta
+          in: query
+          required: false
+          description: Fecha y hora máxima, ISO 8601.
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Página de registros.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaBitacora'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '422':
+          $ref: '#/components/responses/ErrorValidacion'
+        '429':
+          $ref: '#/components/responses/LimiteExcedido'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+components:
+  securitySchemes:
+    tokenSanctum:
+      type: http
+      scheme: bearer
+      description: |
+        Avance 2: la API no pide token. Proyecto Integrador: token de Sanctum
+        obligatorio en estas tres rutas; sin token o con uno inválido responde 401.
+  parameters:
+    Pagina:
+      name: pagina
+      in: query
+      required: false
+      description: Número de página (contrato C2).
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PorPagina:
+      name: por_pagina
+      in: query
+      required: false
+      description: Elementos por página, máximo 100 (contrato C2).
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 15
+  responses:
+    ErrorValidacion:
+      description: Algún parámetro no es válido (contrato C3).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              codigo: validacion
+              mensaje: Los datos de la petición no son válidos.
+              detalles:
+                - campo: por_pagina
+                  mensaje: Debe ser un entero entre 1 y 100.
+    NoAutenticado:
+      description: Falta el token o no es válido. Solo desde el Proyecto Integrador (contrato C3).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              codigo: no_autenticado
+              mensaje: Se requiere un token válido.
+              detalles: []
+    LimiteExcedido:
+      description: Se superó el límite de peticiones. Solo desde el Proyecto Integrador (contrato C3).
+      headers:
+        Retry-After:
+          description: Segundos que hay que esperar antes de reintentar.
+          schema:
+            type: integer
+            minimum: 1
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              codigo: limite_excedido
+              mensaje: Demasiadas peticiones. Intente de nuevo en 30 segundos.
+              detalles: []
+    NoEncontrado:
+      description: El recurso no existe (contrato C3).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              codigo: no_encontrado
+              mensaje: No existe un pedido con id 999999.
+              detalles: []
+    ErrorInterno:
+      description: Error interno, sin detalles técnicos (contrato C3).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              codigo: error_interno
+              mensaje: Ocurrió un error interno.
+              detalles: []
+  schemas:
+    Meta:
+      type: object
+      additionalProperties: false
+      required: [pagina, por_pagina, total, total_paginas]
+      properties:
+        pagina:
+          type: integer
+          minimum: 1
+        por_pagina:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+        total_paginas:
+          type: integer
+          minimum: 0
+    Enlaces:
+      type: object
+      additionalProperties: false
+      required: [anterior, siguiente]
+      properties:
+        anterior:
+          type: [string, 'null']
+        siguiente:
+          type: [string, 'null']
+    CampoPropio:
+      type: object
+      description: El campo que agrega el plugin propio del equipo; su nombre cambia según el giro.
+      additionalProperties: false
+      required: [nombre, valor]
+      properties:
+        nombre:
+          type: string
+          pattern: '^[a-z][a-z0-9_]*$'
+          maxLength: 60
+        valor:
+          type: [string, number, 'null']
+    Producto:
+      type: object
+      additionalProperties: false
+      required: [id, id_tienda, sku, nombre, tipo, precio, existencias, categorias, campo_propio, sincronizado_en]
+      properties:
+        id:
+          type: integer
+          minimum: 1
+          description: Identificador en el motor.
+        id_tienda:
+          type: integer
+          minimum: 1
+          description: Identificador del producto en WooCommerce.
+        sku:
+          type: string
+          minLength: 1
+          maxLength: 100
+        nombre:
+          type: string
+          minLength: 1
+          maxLength: 200
+        tipo:
+          type: string
+          enum: [simple, variable, agrupado, externo]
+        precio:
+          type: [integer, 'null']
+          minimum: 0
+          description: Colones, sin decimales. En un producto variable, el precio menor.
+        existencias:
+          type: [integer, 'null']
+          description: null cuando la tienda no gestiona el inventario de ese producto.
+        categorias:
+          type: array
+          items:
+            type: string
+        campo_propio:
+          $ref: '#/components/schemas/CampoPropio'
+        sincronizado_en:
+          type: string
+          format: date-time
+    ListaProductos:
+      type: object
+      additionalProperties: false
+      required: [datos, meta, enlaces]
+      properties:
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Producto'
+        meta:
+          $ref: '#/components/schemas/Meta'
+        enlaces:
+          $ref: '#/components/schemas/Enlaces'
+    LineaPedido:
+      type: object
+      additionalProperties: false
+      required: [sku, nombre, cantidad, precio_unitario, subtotal]
+      properties:
+        sku:
+          type: [string, 'null']
+        nombre:
+          type: string
+        cantidad:
+          type: integer
+          minimum: 1
+        precio_unitario:
+          type: integer
+          minimum: 0
+        subtotal:
+          type: integer
+          minimum: 0
+    DireccionNormalizada:
+      type: object
+      description: Copia exacta de direccion-normalizada.schema.json (contrato C7).
+      additionalProperties: false
+      required: [provincia, canton, distrito, otras_senas, confianza]
+      properties:
+        provincia:
+          type: string
+          enum: [San José, Alajuela, Cartago, Heredia, Guanacaste, Puntarenas, Limón]
+        canton:
+          type: string
+          minLength: 1
+          maxLength: 60
+        distrito:
+          type: string
+          minLength: 1
+          maxLength: 60
+        otras_senas:
+          type: string
+          maxLength: 250
+        confianza:
+          type: number
+          minimum: 0
+          maximum: 1
+    DireccionPedido:
+      type: object
+      additionalProperties: false
+      required: [estado, texto, normalizada]
+      properties:
+        estado:
+          type: string
+          enum: [sin_procesar, normalizada, pendiente_revision]
+        texto:
+          type: string
+          description: La dirección de envío tal como la escribió el cliente.
+        normalizada:
+          oneOf:
+            - $ref: '#/components/schemas/DireccionNormalizada'
+            - type: 'null'
+    ConectorPedido:
+      type: object
+      additionalProperties: false
+      required: [estado, detalle, referencia_externa, actualizado_en]
+      properties:
+        estado:
+          type: string
+          enum: [pendiente, exito, fallo]
+        detalle:
+          type: [string, 'null']
+          description: El estado que reporta el conector, por ejemplo enviado o cotizado.
+        referencia_externa:
+          type: [string, 'null']
+          description: El identificador que asignó el proveedor.
+        actualizado_en:
+          type: [string, 'null']
+          format: date-time
+    Pedido:
+      type: object
+      additionalProperties: false
+      required: [id, estado, moneda, total, creado_en, lineas, direccion, conector]
+      properties:
+        id:
+          type: integer
+          minimum: 1
+          description: Identificador del pedido en WooCommerce.
+        estado:
+          type: string
+          description: Estado del pedido tal como lo reporta WooCommerce (pending, processing, completed…).
+        moneda:
+          type: string
+          enum: [CRC]
+        total:
+          type: integer
+          minimum: 0
+        creado_en:
+          type: string
+          format: date-time
+        lineas:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/LineaPedido'
+        direccion:
+          $ref: '#/components/schemas/DireccionPedido'
+        conector:
+          $ref: '#/components/schemas/ConectorPedido'
+    Sistema:
+      type: string
+      enum: [tienda, conector, ia, heredado]
+    EstadoBitacora:
+      type: string
+      enum: [exito, fallo, duplicado, firma_invalida]
+    EntradaBitacora:
+      type: object
+      additionalProperties: false
+      required: [id, fecha, direccion, sistema, operacion, estado, codigo_http, intentos, duracion_ms, correlacion, error]
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        fecha:
+          type: string
+          format: date-time
+        direccion:
+          type: string
+          enum: [entrante, saliente]
+        sistema:
+          $ref: '#/components/schemas/Sistema'
+        operacion:
+          type: string
+          pattern: '^[a-z][a-z0-9_]*$'
+          description: Por ejemplo listar_productos, webhook_pedido_creado, ejecutar_accion o normalizar_direccion.
+        estado:
+          $ref: '#/components/schemas/EstadoBitacora'
+        codigo_http:
+          type: [integer, 'null']
+          description: null cuando no hubo respuesta, por ejemplo por un error de conexión.
+        intentos:
+          type: integer
+          minimum: 1
+        duracion_ms:
+          type: integer
+          minimum: 0
+        correlacion:
+          type: [string, 'null']
+        error:
+          type: [string, 'null']
+          description: Mensaje de error sin secretos ni cuerpos de peticiones.
+    ListaBitacora:
+      type: object
+      additionalProperties: false
+      required: [datos, meta, enlaces]
+      properties:
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntradaBitacora'
+        meta:
+          $ref: '#/components/schemas/Meta'
+        enlaces:
+          $ref: '#/components/schemas/Enlaces'
+    DetalleError:
+      type: object
+      additionalProperties: false
+      required: [campo, mensaje]
+      properties:
+        campo:
+          type: string
+        mensaje:
+          type: string
+    Error:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required: [codigo, mensaje, detalles]
+          properties:
+            codigo:
+              type: string
+              enum: [solicitud_invalida, no_autenticado, prohibido, no_encontrado, validacion, limite_excedido, error_interno]
+            mensaje:
+              type: string
+            detalles:
+              type: array
+              items:
+                $ref: '#/components/schemas/DetalleError'

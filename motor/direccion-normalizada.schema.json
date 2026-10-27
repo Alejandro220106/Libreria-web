@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DireccionNormalizada",
+  "description": "Salida estructurada que el modelo devuelve al normalizar la dirección de entrega de un pedido (Proyecto 1, apartado 6.8; contrato C7). El motor la valida con este esquema antes de guardarla. Con confianza menor que 0,85 la dirección queda pendiente de revisión: esa regla es del motor, no del esquema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "provincia",
+    "canton",
+    "distrito",
+    "otras_senas",
+    "confianza"
+  ],
+  "properties": {
+    "provincia": {
+      "type": "string",
+      "enum": [
+        "San José",
+        "Alajuela",
+        "Cartago",
+        "Heredia",
+        "Guanacaste",
+        "Puntarenas",
+        "Limón"
+      ]
+    },
+    "canton": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 60
+    },
+    "distrito": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 60
+    },
+    "otras_senas": {
+      "type": "string",
+      "maxLength": 250
+    },
+    "confianza": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  }
+}
