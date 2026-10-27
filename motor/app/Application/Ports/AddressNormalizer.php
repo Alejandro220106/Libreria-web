@@ -15,7 +15,10 @@ interface AddressNormalizer
      *
      * @param  string  $address  Free-text shipping address, for example
      *                           "100 metros norte de la iglesia de Ciudad Quesada, casa verde".
+     * @param  string|null  $correlationId  Order id, so the log entry can be traced.
      * @return array{provincia: string, canton: string, distrito: string, otras_senas: string, confianza: float}
+     *
+     * @throws \App\Domain\Address\InvalidAddressResponse When the reply does not match the schema.
      */
-    public function normalize(string $address): array;
+    public function normalize(string $address, ?string $correlationId = null): array;
 }
