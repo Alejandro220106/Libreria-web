@@ -1,0 +1,627 @@
+{
+  "info": {
+    "_postman_id": "676170d2-fc81-5c6a-a847-0d9968663211",
+    "name": "Motor · Contrato obligatorio v1 (ITI-621)",
+    "description": "Verifica el contrato obligatorio del motor (openapi.yaml, version 1.0.0). No se modifica. Ver LEEME.md para los datos que debe cargar php artisan migrate --seed.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('C1 · La respuesta es JSON', function () {",
+          "    pm.expect(pm.response.headers.get('Content-Type') || '').to.include('application/json');",
+          "});",
+          "pm.test('C3 · Sin trazas ni datos internos', function () {",
+          "    const texto = pm.response.text();",
+          "    ['\"trace\"', '\"exception\"', '\"file\"', '\"line\"'].forEach(function (k) {",
+          "        pm.expect(texto).to.not.include(k);",
+          "    });",
+          "});"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Productos",
+      "item": [
+        {
+          "name": "Listar productos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.response.to.have.status(200); });",
+                  "const d = JSON.parse(pm.collectionVariables.get('esquemas'));",
+                  "pm.test('Cumple el esquema ListaProductos', function () {",
+                  "    pm.response.to.have.jsonSchema({ $ref: '#/definitions/ListaProductos', definitions: d });",
+                  "});",
+                  "pm.test('C2 · Valores por defecto: pagina 1 y por_pagina 15', function () {",
+                  "    const m = pm.response.json().meta;",
+                  "    pm.expect(m.pagina).to.eql(1);",
+                  "    pm.expect(m.por_pagina).to.eql(15);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/productos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "productos"
+              ]
+            },
+            "description": "Contrato C2 y C4."
+          }
+        },
+        {
+          "name": "Paginar productos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.response.to.have.status(200); });",
+                  "const d = JSON.parse(pm.collectionVariables.get('esquemas'));",
+                  "pm.test('Cumple el esquema ListaProductos', function () {",
+                  "    pm.response.to.have.jsonSchema({ $ref: '#/definitions/ListaProductos', definitions: d });",
+                  "});",
+                  "pm.test('C2 · Respeta pagina y por_pagina', function () {",
+                  "    const r = pm.response.json();",
+                  "    pm.expect(r.meta.pagina).to.eql(2);",
+                  "    pm.expect(r.meta.por_pagina).to.eql(5);",
+                  "    pm.expect(r.datos.length).to.be.within(1, 5);",
+                  "    pm.expect(r.enlaces.anterior).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/productos?pagina=2&por_pagina=5",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "productos"
+              ],
+              "query": [
+                {
+                  "key": "pagina",
+                  "value": "2"
+                },
+                {
+                  "key": "por_pagina",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Contrato C2. El seeder carga al menos 12 productos."
+          }
+        },
+        {
+          "name": "Buscar por SKU",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.response.to.have.status(200); });",
+                  "const d = JSON.parse(pm.collectionVariables.get('esquemas'));",
+                  "pm.test('Cumple el esquema ListaProductos', function () {",
+                  "    pm.response.to.have.jsonSchema({ $ref: '#/definitions/ListaProductos', definitions: d });",
+                  "});",
+                  "pm.test('C4 · Trae el producto con su campo propio', function () {",
+                  "    const r = pm.response.json();",
+                  "    pm.expect(r.datos.length).to.eql(1);",
+                  "    pm.expect(r.datos[0].sku).to.eql('CONTRATO-001');",
+                  "    pm.expect(r.datos[0].campo_propio.valor).to.not.eql(null);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/productos?sku=CONTRATO-001",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "productos"
+              ],
+              "query": [
+                {
+                  "key": "sku",
+                  "value": "CONTRATO-001"
+                }
+              ]
+            },
+            "description": "Contrato C4."
+          }
+        },
+        {
+          "name": "por_pagina fuera de rango",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 422', function () { pm.response.to.have.status(422); });",
+                  "const d = JSON.parse(pm.collectionVariables.get('esquemas'));",
+                  "pm.test('Cumple el esquema Error', function () {",
+                  "    pm.response.to.have.jsonSchema({ $ref: '#/definitions/Error', definitions: d });",
+                  "});",
+                  "pm.test('C3 · error.codigo es validacion', function () {",
+                  "    pm.expect(pm.response.json().error.codigo).to.eql('validacion');",
+                  "});",
+                  "pm.test('C3 · detalles nombra el campo por_pagina', function () {",
+                  "    const campos = pm.response.json().error.detalles.map(function (x) { return x.campo; });",
+                  "    pm.expect(campos).to.include('por_pagina');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/productos?por_pagina=101",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "productos"
+              ],
+              "query": [
+                {
+                  "key": "por_pagina",
+                  "value": "101"
+                }
+              ]
+            },
+            "description": "Contrato C2 y C3."
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Pedidos",
+      "item": [
+        {
+          "name": "Pedido con direccion normalizada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.response.to.have.status(200); });",
+                  "const d = JSON.parse(pm.collectionVariables.get('esquemas'));",
+                  "pm.test('Cumple el esquema Pedido', function () {",
+                  "    pm.response.to.have.jsonSchema({ $ref: '#/definitions/Pedido', definitions: d });",
+                  "});",
+                  "pm.test('C8 · No expone datos personales del cliente', function () {",
+                  "    const texto = pm.response.text();",
+                  "    ['\"correo\"', '\"email\"', '\"telefono\"', '\"phone\"', '\"first_name\"'].forEach(function (k) {",
+                  "        pm.expect(texto).to.not.include(k);",
+                  "    });",
+                  "});",
+                  "pm.test('C7 · Direccion normalizada con confianza de 0,85 o mas', function () {",
+                  "    const dir = pm.response.json().direccion;",
+                  "    pm.expect(dir.estado).to.eql('normalizada');",
+                  "    pm.expect(dir.normalizada.confianza).to.be.at.least(0.85);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/pedidos/1001",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pedidos",
+                "1001"
+              ]
+            },
+            "description": "Contrato C5, C7 y C8."
+          }
+        },
+        {
+          "name": "Pedido pendiente de revision",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.response.to.have.status(200); });",
+                  "const d = JSON.parse(pm.collectionVariables.get('esquemas'));",
+                  "pm.test('Cumple el esquema Pedido', function () {",
+                  "    pm.response.to.have.jsonSchema({ $ref: '#/definitions/Pedido', definitions: d });",
+                  "});",
+                  "pm.test('C8 · No expone datos personales del cliente', function () {",
+                  "    const texto = pm.response.text();",
+                  "    ['\"correo\"', '\"email\"', '\"telefono\"', '\"phone\"', '\"first_name\"'].forEach(function (k) {",
+                  "        pm.expect(texto).to.not.include(k);",
+                  "    });",
+                  "});",
+                  "pm.test('C7 · Queda pendiente de revision y sin normalizar', function () {",
+                  "    const dir = pm.response.json().direccion;",
+                  "    pm.expect(dir.estado).to.eql('pendiente_revision');",
+                  "    pm.expect(dir.normalizada).to.eql(null);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/pedidos/1002",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pedidos",
+                "1002"
+              ]
+            },
+            "description": "Contrato C5 y C7."
+          }
+        },
+        {
+          "name": "Pedido inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 404', function () { pm.response.to.have.status(404); });",
+                  "const d = JSON.parse(pm.collectionVariables.get('esquemas'));",
+                  "pm.test('Cumple el esquema Error', function () {",
+                  "    pm.response.to.have.jsonSchema({ $ref: '#/definitions/Error', definitions: d });",
+                  "});",
+                  "pm.test('C3 · error.codigo es no_encontrado', function () {",
+                  "    pm.expect(pm.response.json().error.codigo).to.eql('no_encontrado');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/pedidos/999999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pedidos",
+                "999999"
+              ]
+            },
+            "description": "Contrato C3 y C5."
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Bitacora",
+      "item": [
+        {
+          "name": "Listar bitacora",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.response.to.have.status(200); });",
+                  "const d = JSON.parse(pm.collectionVariables.get('esquemas'));",
+                  "pm.test('Cumple el esquema ListaBitacora', function () {",
+                  "    pm.response.to.have.jsonSchema({ $ref: '#/definitions/ListaBitacora', definitions: d });",
+                  "});",
+                  "pm.test('C6 · Del mas reciente al mas antiguo', function () {",
+                  "    const f = pm.response.json().datos.map(function (x) { return Date.parse(x.fecha); });",
+                  "    for (let i = 1; i < f.length; i++) { pm.expect(f[i - 1]).to.be.at.least(f[i]); }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/bitacora",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "bitacora"
+              ]
+            },
+            "description": "Contrato C6."
+          }
+        },
+        {
+          "name": "Filtrar por sistema",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.response.to.have.status(200); });",
+                  "const d = JSON.parse(pm.collectionVariables.get('esquemas'));",
+                  "pm.test('Cumple el esquema ListaBitacora', function () {",
+                  "    pm.response.to.have.jsonSchema({ $ref: '#/definitions/ListaBitacora', definitions: d });",
+                  "});",
+                  "pm.test('C6 · Solo registros del conector', function () {",
+                  "    const d = pm.response.json().datos;",
+                  "    pm.expect(d.length).to.be.above(0);",
+                  "    d.forEach(function (x) { pm.expect(x.sistema).to.eql('conector'); });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/bitacora?sistema=conector",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "bitacora"
+              ],
+              "query": [
+                {
+                  "key": "sistema",
+                  "value": "conector"
+                }
+              ]
+            },
+            "description": "Contrato C6."
+          }
+        },
+        {
+          "name": "Filtrar por correlacion",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', function () { pm.response.to.have.status(200); });",
+                  "const d = JSON.parse(pm.collectionVariables.get('esquemas'));",
+                  "pm.test('Cumple el esquema ListaBitacora', function () {",
+                  "    pm.response.to.have.jsonSchema({ $ref: '#/definitions/ListaBitacora', definitions: d });",
+                  "});",
+                  "pm.test('C6 · Solo esa correlacion', function () {",
+                  "    const d = pm.response.json().datos;",
+                  "    pm.expect(d.length).to.be.above(0);",
+                  "    d.forEach(function (x) { pm.expect(x.correlacion).to.eql('contrato-entrega-001'); });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/bitacora?correlacion=contrato-entrega-001",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "bitacora"
+              ],
+              "query": [
+                {
+                  "key": "correlacion",
+                  "value": "contrato-entrega-001"
+                }
+              ]
+            },
+            "description": "Contrato C6."
+          }
+        },
+        {
+          "name": "Filtro invalido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 422', function () { pm.response.to.have.status(422); });",
+                  "const d = JSON.parse(pm.collectionVariables.get('esquemas'));",
+                  "pm.test('Cumple el esquema Error', function () {",
+                  "    pm.response.to.have.jsonSchema({ $ref: '#/definitions/Error', definitions: d });",
+                  "});",
+                  "pm.test('C3 · error.codigo es validacion', function () {",
+                  "    pm.expect(pm.response.json().error.codigo).to.eql('validacion');",
+                  "});",
+                  "pm.test('C3 · detalles nombra el campo estado', function () {",
+                  "    const campos = pm.response.json().error.detalles.map(function (x) { return x.campo; });",
+                  "    pm.expect(campos).to.include('estado');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/bitacora?estado=desconocido",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "bitacora"
+              ],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "desconocido"
+                }
+              ]
+            },
+            "description": "Contrato C3 y C6."
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Errores",
+      "item": [
+        {
+          "name": "Ruta inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 404', function () { pm.response.to.have.status(404); });",
+                  "const d = JSON.parse(pm.collectionVariables.get('esquemas'));",
+                  "pm.test('Cumple el esquema Error', function () {",
+                  "    pm.response.to.have.jsonSchema({ $ref: '#/definitions/Error', definitions: d });",
+                  "});",
+                  "pm.test('C3 · error.codigo es no_encontrado', function () {",
+                  "    pm.expect(pm.response.json().error.codigo).to.eql('no_encontrado');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/no-existe",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "no-existe"
+              ]
+            },
+            "description": "Contrato C1 y C3: hasta la ruta que no existe responde con el formato unico."
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "esquemas",
+      "value": "{\"Meta\": {\"type\": \"object\", \"additionalProperties\": false, \"required\": [\"pagina\", \"por_pagina\", \"total\", \"total_paginas\"], \"properties\": {\"pagina\": {\"type\": \"integer\", \"minimum\": 1}, \"por_pagina\": {\"type\": \"integer\", \"minimum\": 1, \"maximum\": 100}, \"total\": {\"type\": \"integer\", \"minimum\": 0}, \"total_paginas\": {\"type\": \"integer\", \"minimum\": 0}}}, \"Enlaces\": {\"type\": \"object\", \"additionalProperties\": false, \"required\": [\"anterior\", \"siguiente\"], \"properties\": {\"anterior\": {\"type\": [\"string\", \"null\"]}, \"siguiente\": {\"type\": [\"string\", \"null\"]}}}, \"CampoPropio\": {\"type\": \"object\", \"additionalProperties\": false, \"required\": [\"nombre\", \"valor\"], \"properties\": {\"nombre\": {\"type\": \"string\", \"pattern\": \"^[a-z][a-z0-9_]*$\", \"maxLength\": 60}, \"valor\": {\"type\": [\"string\", \"number\", \"null\"]}}}, \"Producto\": {\"type\": \"object\", \"additionalProperties\": false, \"required\": [\"id\", \"id_tienda\", \"sku\", \"nombre\", \"tipo\", \"precio\", \"existencias\", \"categorias\", \"campo_propio\", \"sincronizado_en\"], \"properties\": {\"id\": {\"type\": \"integer\", \"minimum\": 1}, \"id_tienda\": {\"type\": \"integer\", \"minimum\": 1}, \"sku\": {\"type\": \"string\", \"minLength\": 1, \"maxLength\": 100}, \"nombre\": {\"type\": \"string\", \"minLength\": 1, \"maxLength\": 200}, \"tipo\": {\"type\": \"string\", \"enum\": [\"simple\", \"variable\", \"agrupado\", \"externo\"]}, \"precio\": {\"type\": [\"integer\", \"null\"], \"minimum\": 0}, \"existencias\": {\"type\": [\"integer\", \"null\"]}, \"categorias\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"campo_propio\": {\"$ref\": \"#/definitions/CampoPropio\"}, \"sincronizado_en\": {\"type\": \"string\", \"format\": \"date-time\"}}}, \"ListaProductos\": {\"type\": \"object\", \"additionalProperties\": false, \"required\": [\"datos\", \"meta\", \"enlaces\"], \"properties\": {\"datos\": {\"type\": \"array\", \"items\": {\"$ref\": \"#/definitions/Producto\"}}, \"meta\": {\"$ref\": \"#/definitions/Meta\"}, \"enlaces\": {\"$ref\": \"#/definitions/Enlaces\"}}}, \"LineaPedido\": {\"type\": \"object\", \"additionalProperties\": false, \"required\": [\"sku\", \"nombre\", \"cantidad\", \"precio_unitario\", \"subtotal\"], \"properties\": {\"sku\": {\"type\": [\"string\", \"null\"]}, \"nombre\": {\"type\": \"string\"}, \"cantidad\": {\"type\": \"integer\", \"minimum\": 1}, \"precio_unitario\": {\"type\": \"integer\", \"minimum\": 0}, \"subtotal\": {\"type\": \"integer\", \"minimum\": 0}}}, \"DireccionNormalizada\": {\"type\": \"object\", \"additionalProperties\": false, \"required\": [\"provincia\", \"canton\", \"distrito\", \"otras_senas\", \"confianza\"], \"properties\": {\"provincia\": {\"type\": \"string\", \"enum\": [\"San José\", \"Alajuela\", \"Cartago\", \"Heredia\", \"Guanacaste\", \"Puntarenas\", \"Limón\"]}, \"canton\": {\"type\": \"string\", \"minLength\": 1, \"maxLength\": 60}, \"distrito\": {\"type\": \"string\", \"minLength\": 1, \"maxLength\": 60}, \"otras_senas\": {\"type\": \"string\", \"maxLength\": 250}, \"confianza\": {\"type\": \"number\", \"minimum\": 0, \"maximum\": 1}}}, \"DireccionPedido\": {\"type\": \"object\", \"additionalProperties\": false, \"required\": [\"estado\", \"texto\", \"normalizada\"], \"properties\": {\"estado\": {\"type\": \"string\", \"enum\": [\"sin_procesar\", \"normalizada\", \"pendiente_revision\"]}, \"texto\": {\"type\": \"string\"}, \"normalizada\": {\"oneOf\": [{\"$ref\": \"#/definitions/DireccionNormalizada\"}, {\"type\": \"null\"}]}}}, \"ConectorPedido\": {\"type\": \"object\", \"additionalProperties\": false, \"required\": [\"estado\", \"detalle\", \"referencia_externa\", \"actualizado_en\"], \"properties\": {\"estado\": {\"type\": \"string\", \"enum\": [\"pendiente\", \"exito\", \"fallo\"]}, \"detalle\": {\"type\": [\"string\", \"null\"]}, \"referencia_externa\": {\"type\": [\"string\", \"null\"]}, \"actualizado_en\": {\"type\": [\"string\", \"null\"], \"format\": \"date-time\"}}}, \"Pedido\": {\"type\": \"object\", \"additionalProperties\": false, \"required\": [\"id\", \"estado\", \"moneda\", \"total\", \"creado_en\", \"lineas\", \"direccion\", \"conector\"], \"properties\": {\"id\": {\"type\": \"integer\", \"minimum\": 1}, \"estado\": {\"type\": \"string\"}, \"moneda\": {\"type\": \"string\", \"enum\": [\"CRC\"]}, \"total\": {\"type\": \"integer\", \"minimum\": 0}, \"creado_en\": {\"type\": \"string\", \"format\": \"date-time\"}, \"lineas\": {\"type\": \"array\", \"minItems\": 1, \"items\": {\"$ref\": \"#/definitions/LineaPedido\"}}, \"direccion\": {\"$ref\": \"#/definitions/DireccionPedido\"}, \"conector\": {\"$ref\": \"#/definitions/ConectorPedido\"}}}, \"Sistema\": {\"type\": \"string\", \"enum\": [\"tienda\", \"conector\", \"ia\", \"heredado\"]}, \"EstadoBitacora\": {\"type\": \"string\", \"enum\": [\"exito\", \"fallo\", \"duplicado\", \"firma_invalida\"]}, \"EntradaBitacora\": {\"type\": \"object\", \"additionalProperties\": false, \"required\": [\"id\", \"fecha\", \"direccion\", \"sistema\", \"operacion\", \"estado\", \"codigo_http\", \"intentos\", \"duracion_ms\", \"correlacion\", \"error\"], \"properties\": {\"id\": {\"type\": \"integer\", \"minimum\": 1}, \"fecha\": {\"type\": \"string\", \"format\": \"date-time\"}, \"direccion\": {\"type\": \"string\", \"enum\": [\"entrante\", \"saliente\"]}, \"sistema\": {\"$ref\": \"#/definitions/Sistema\"}, \"operacion\": {\"type\": \"string\", \"pattern\": \"^[a-z][a-z0-9_]*$\"}, \"estado\": {\"$ref\": \"#/definitions/EstadoBitacora\"}, \"codigo_http\": {\"type\": [\"integer\", \"null\"]}, \"intentos\": {\"type\": \"integer\", \"minimum\": 1}, \"duracion_ms\": {\"type\": \"integer\", \"minimum\": 0}, \"correlacion\": {\"type\": [\"string\", \"null\"]}, \"error\": {\"type\": [\"string\", \"null\"]}}}, \"ListaBitacora\": {\"type\": \"object\", \"additionalProperties\": false, \"required\": [\"datos\", \"meta\", \"enlaces\"], \"properties\": {\"datos\": {\"type\": \"array\", \"items\": {\"$ref\": \"#/definitions/EntradaBitacora\"}}, \"meta\": {\"$ref\": \"#/definitions/Meta\"}, \"enlaces\": {\"$ref\": \"#/definitions/Enlaces\"}}}, \"DetalleError\": {\"type\": \"object\", \"additionalProperties\": false, \"required\": [\"campo\", \"mensaje\"], \"properties\": {\"campo\": {\"type\": \"string\"}, \"mensaje\": {\"type\": \"string\"}}}, \"Error\": {\"type\": \"object\", \"additionalProperties\": false, \"required\": [\"error\"], \"properties\": {\"error\": {\"type\": \"object\", \"additionalProperties\": false, \"required\": [\"codigo\", \"mensaje\", \"detalles\"], \"properties\": {\"codigo\": {\"type\": \"string\", \"enum\": [\"solicitud_invalida\", \"no_autenticado\", \"prohibido\", \"no_encontrado\", \"validacion\", \"limite_excedido\", \"error_interno\"]}, \"mensaje\": {\"type\": \"string\"}, \"detalles\": {\"type\": \"array\", \"items\": {\"$ref\": \"#/definitions/DetalleError\"}}}}}}}",
+      "type": "string"
+    }
+  ]
+}
