@@ -54,7 +54,7 @@ The architecture and conventions are described in [docs/arquitectura.md](docs/ar
 | Piece | Provider | Notes |
 |---|---|---|
 | Connector (messaging) | Mailtrap Email Sandbox | Sends an order notification to a test inbox. Emails are captured and never delivered, so no real personal data is used. Selected in #69. |
-| AI model (address normalization) | _to be defined_ | Provider and model will be declared here. The API key goes only in `.env`. |
+| AI model (address normalization) | Ollama (local), model `qwen2.5:7b` | Runs on the team's machine, so no API key is needed and no address leaves it. The reply is constrained with the instructor's JSON schema through Ollama's `format` field. Tested on six Zona Norte addresses (including an ambiguous one and one with an injected instruction): all replies matched the schema, but the model can still obey injected text, so the engine must check the result and keep confidence below 0.85 for review. Selected in #48. |
 
 ## Demo video
 
