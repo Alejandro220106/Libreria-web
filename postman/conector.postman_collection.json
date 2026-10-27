@@ -12,6 +12,25 @@
 			"item": [
 				{
 					"name": "Obtener_account_id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Response lists at least one account', function () {",
+									"    pm.expect(pm.response.json()).to.be.an('array').that.is.not.empty;",
+									"});",
+									"pm.environment.set('account_id', pm.response.json()[0].id);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -175,6 +194,16 @@
 								"send",
 								"{{inbox_id}}"
 							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "token-invalido",
+									"type": "string"
+								}
+							]
 						}
 					},
 					"response": []
@@ -187,7 +216,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "token-invalido",
+				"value": "{{mailtrap_token}}",
 				"type": "string"
 			}
 		]
