@@ -20,6 +20,14 @@ class WooCommerceWebhookController extends Controller
 {
     public function __invoke(Request $request, SignatureVerifier $verifier, IntegrationLogger $logger, StoreOrder $storeOrder)
     {
+        // WooCommerce sends this ping when a webhook is saved and does not sign it. It carries
+        // no order data and changes nothing, so it is answered before the signature check.
+        if (preg_match('/\Awebhook_id=\d+\z/', $request->getContent()) === 1) {
+            $this->log($logger, 'webhook_ping', LogStatus::Success, 200, $request);
+
+            return response()->json([]);
+        }
+
         // The raw body, never the re-encoded JSON: the signature was computed over the exact bytes.
         $isValid = $verifier->isValid(
             $request->getContent(),
