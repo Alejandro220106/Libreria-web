@@ -7,6 +7,6 @@ Archivos que publicó el docente para todos los equipos. Se copian **sin cambios
 | Contrato OpenAPI obligatorio | `motor/openapi.yaml` | 20 de octubre de 2026 | Define las rutas, la paginación y el formato de errores del motor. Los endpoints adicionales del equipo se documentan en este mismo archivo |
 | Esquema de la dirección normalizada | `motor/direccion-normalizada.schema.json` | 20 de octubre de 2026 | Valida la respuesta del modelo de IA antes de guardar la dirección de un pedido |
 | Colección de Newman | `motor/motor-contrato.postman_collection.json` | 20 de octubre de 2026 | Comprueba que el motor cumple el contrato, con los datos que carga `php artisan migrate --seed` |
-| Interfaz común del conector | `motor/app/Conectores/` | 6 de octubre de 2026 | Interfaz PHP que implementa el conector. **Pendiente de agregar** |
+| Interfaz común del conector | `motor/app/Conectores/` | 6 de octubre de 2026 | Interfaz PHP que implementa el conector. **No se encontró el archivo del docente**: el equipo escribió una interfaz propia (`ConnectorInterface.php`, con `ConnectorOrder` y `ConnectorResult`) para no frenar el trabajo. Es provisional: cuando se obtenga la oficial se reemplaza y se adapta `MailtrapConnector` |
 
 Los tres primeros vienen del archivo `practica-postman.zip` del 20 de octubre y se comprobó que son idénticos al original.
