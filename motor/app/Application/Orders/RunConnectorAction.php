@@ -49,7 +49,8 @@ class RunConnectorAction
     {
         try {
             return $this->connector->execute(
-                new ConnectorOrder($order->id, (string) $order->total, $order->currency),
+                // The store's order number, the one the customer sees; not the engine's own id.
+                new ConnectorOrder($order->woo_id, (string) $order->total, $order->currency),
             );
         } catch (Throwable $e) {
             // The connector should report failures in its result; this is the safety net.
@@ -58,7 +59,7 @@ class RunConnectorAction
                 system: LogSystem::Connector,
                 operation: 'run_action',
                 status: LogStatus::Failure,
-                correlationId: (string) $order->id,
+                correlationId: (string) $order->woo_id,
                 error: $e::class,
             );
 

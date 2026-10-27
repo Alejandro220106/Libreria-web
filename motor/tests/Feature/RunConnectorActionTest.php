@@ -60,6 +60,17 @@ it('keeps the order saved and logs the failure when the provider is down', funct
     expect($log->system->value)->toBe('connector')->and($log->status->value)->toBe('failure');
 });
 
+it('uses the store order number in the email subject and the log, not the engine id', function () {
+    Http::fake(['sandbox.api.mailtrap.io/*' => Http::response(['message_ids' => ['abc-3']])]);
+    $order = newOrder(['woo_id' => 2001]);
+    expect($order->id)->not->toBe(2001);
+
+    app(RunConnectorAction::class)->handle($order->id);
+
+    Http::assertSent(fn ($request) => $request['subject'] === 'Pedido #2001 recibido');
+    expect(IntegrationLog::latest('id')->first()->correlation_id)->toBe('2001');
+});
+
 it('does not notify the same order twice when the job is repeated', function () {
     Http::fake(['sandbox.api.mailtrap.io/*' => Http::response(['message_ids' => ['abc-1']])]);
     $order = newOrder();
