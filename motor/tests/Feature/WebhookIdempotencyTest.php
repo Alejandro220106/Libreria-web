@@ -49,6 +49,23 @@ it('answers 200 to the test ping and stores no delivery', function () {
         ->and(IntegrationLog::sole()->operation)->toBe('webhook_ping');
 });
 
+it('answers 200 to the unsigned form-encoded ping WooCommerce really sends', function () {
+    $this->call('POST', '/api/v1/webhooks/woocommerce', [], [], [], [
+        'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+    ], 'webhook_id=7')->assertOk();
+
+    expect(WebhookDelivery::count())->toBe(0)
+        ->and(IntegrationLog::sole()->operation)->toBe('webhook_ping');
+});
+
+it('still rejects an unsigned body that is not exactly a ping', function () {
+    foreach (['webhook_id=7&id=1', '{"id":1001}', 'webhook_id=abc'] as $body) {
+        $this->call('POST', '/api/v1/webhooks/woocommerce', [], [], [], [
+            'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+        ], $body)->assertStatus(401);
+    }
+});
+
 it('rejects a signed delivery without the delivery id header', function () {
     deliver('{"id":1001}', null)
         ->assertStatus(422)
