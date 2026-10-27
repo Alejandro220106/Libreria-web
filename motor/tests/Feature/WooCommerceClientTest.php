@@ -35,6 +35,24 @@ it('calls the store with basic auth and returns data and page count', function (
         && $request->hasHeader('Authorization', 'Basic '.base64_encode('ck_test:cs_test')));
 });
 
+it('verifies the TLS certificate by default and can skip it for a local store', function () {
+    $verify = [];
+    Http::fake(function ($request, $options) use (&$verify) {
+        $verify[] = $options['verify'];
+
+        return Http::response([], 200);
+    });
+
+    // Set explicitly so a developer's own .env (STORE_VERIFY_SSL=false) cannot change the result.
+    config(['store.verify_ssl' => true]);
+    app(StoreClient::class)->get('products');
+
+    config(['store.verify_ssl' => false]);
+    app(StoreClient::class)->get('products');
+
+    expect($verify)->toBe([true, false]);
+});
+
 it('retries on a 5xx error and then succeeds', function () {
     Http::fake([
         'tienda.test/*' => Http::sequence()->push([], 503)->push([['id' => 1]], 200),
