@@ -4,7 +4,10 @@ use App\Application\Ports\StoreClient;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
+use App\Models\IntegrationLog;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
 
 beforeEach(function () {
     config([
@@ -79,16 +82,30 @@ it('gives up after three attempts', function () {
     Http::assertSentCount(3);
 });
 
-it('records every call without leaking the keys', function () {
-    Log::spy();
+it('records a successful call in the integration log without leaking the keys', function () {
     Http::fake(['tienda.test/*' => Http::response([], 200)]);
 
     app(StoreClient::class)->get('products');
 
-    Log::shouldHaveReceived('info')->once()->withArgs(function (string $message, array $context) {
-        return $message === 'store.request'
-            && $context['endpoint'] === 'products'
-            && ! str_contains(json_encode($context), 'cs_test')
-            && ! str_contains(json_encode($context), 'ck_test');
-    });
+    $log = IntegrationLog::sole();
+    expect($log->direction->value)->toBe('outgoing')
+        ->and($log->system->value)->toBe('store')
+        ->and($log->operation)->toBe('get_products')
+        ->and($log->status->value)->toBe('success')
+        ->and($log->http_code)->toBe(200)
+        ->and($log->attempts)->toBe(1)
+        ->and(json_encode($log->toArray()))->not->toContain('cs_test')->not->toContain('ck_test');
+});
+
+it('records a failed call with its attempts', function () {
+    Http::fake(['tienda.test/*' => Http::response([], 500)]);
+
+    expect(fn () => app(StoreClient::class)->get('products/12'))->toThrow(RequestException::class);
+
+    $log = IntegrationLog::sole();
+    expect($log->operation)->toBe('get_products')
+        ->and($log->status->value)->toBe('failure')
+        ->and($log->http_code)->toBe(500)
+        ->and($log->attempts)->toBe(3)
+        ->and($log->error)->toBe(RequestException::class);
 });

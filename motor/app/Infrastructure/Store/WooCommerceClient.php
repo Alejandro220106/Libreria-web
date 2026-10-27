@@ -2,11 +2,14 @@
 
 namespace App\Infrastructure\Store;
 
+use App\Application\Ports\IntegrationLogger;
 use App\Application\Ports\StoreClient;
+use App\Domain\IntegrationLog\LogDirection;
+use App\Domain\IntegrationLog\LogStatus;
+use App\Domain\IntegrationLog\LogSystem;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Throwable;
 
 /**
@@ -16,6 +19,8 @@ use Throwable;
  */
 class WooCommerceClient implements StoreClient
 {
+    public function __construct(private readonly IntegrationLogger $logger) {}
+
     public function get(string $endpoint, array $query = []): array
     {
         $url = rtrim((string) config('store.url'), '/').'/wp-json/wc/v3/'.ltrim($endpoint, '/');
@@ -67,25 +72,20 @@ class WooCommerceClient implements StoreClient
     }
 
     /**
-     * Records the call. It never includes keys or the full URL.
-     * TODO(#47): replace Log with the integration log port when it exists.
+     * Records the call in the integration log. It never includes keys or the URL:
+     * the operation is only the first segment of the endpoint, for example "get_products".
      */
     private function log(string $endpoint, float $started, int $attempts, ?int $status, ?Throwable $error = null): void
     {
-        $context = [
-            'method' => 'GET',
-            'endpoint' => $endpoint,
-            'status' => $status,
-            'attempts' => $attempts,
-            'duration_ms' => (int) round((microtime(true) - $started) * 1000),
-        ];
-
-        if ($error === null) {
-            Log::info('store.request', $context);
-
-            return;
-        }
-
-        Log::warning('store.request.failed', $context + ['error' => $error::class]);
+        $this->logger->record(
+            direction: LogDirection::Outgoing,
+            system: LogSystem::Store,
+            operation: 'get_'.preg_replace('/[^a-z0-9]+/', '_', strtolower(explode('/', trim($endpoint, '/'))[0])),
+            status: $error === null ? LogStatus::Success : LogStatus::Failure,
+            httpCode: $status,
+            attempts: $attempts,
+            durationMs: (int) round((microtime(true) - $started) * 1000),
+            error: $error === null ? null : $error::class,
+        );
     }
 }
