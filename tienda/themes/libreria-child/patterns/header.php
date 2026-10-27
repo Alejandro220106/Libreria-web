@@ -8,6 +8,8 @@
  * @package libreria-child
  */
 
+defined( 'ABSPATH' ) || exit;
+
 // Top-level categories shown in the menu. A slug that does not exist is skipped.
 $libreria_menu_slugs = array( 'ficcion', 'infantil', 'academicos', 'historia' );
 ?>
@@ -17,8 +19,17 @@ $libreria_menu_slugs = array( 'ficcion', 'infantil', 'academicos', 'historia' );
 	<div class="wp-block-group alignwide">
 		<!-- wp:site-title {"level":0} /-->
 
-		<!-- wp:navigation {"overlayMenu":"mobile","overlayBackgroundColor":"base","overlayTextColor":"contrast","layout":{"type":"flex","justifyContent":"center"},"metadata":{"ignoredHookedBlocks":["woocommerce/mini-cart","woocommerce/customer-account"]}} -->
+		<!-- wp:navigation {"ariaLabel":"Principal","overlayMenu":"mobile","overlayBackgroundColor":"base","overlayTextColor":"contrast","layout":{"type":"flex","justifyContent":"center"},"metadata":{"ignoredHookedBlocks":["woocommerce/mini-cart","woocommerce/customer-account"]}} -->
 		<?php
+		if ( function_exists( 'wc_get_page_permalink' ) ) {
+			$libreria_shop_attrs = array(
+				'label' => __( 'Tienda', 'libreria-child' ),
+				'url'   => wc_get_page_permalink( 'shop' ),
+				'kind'  => 'custom',
+			);
+			echo '<!-- wp:navigation-link ' . serialize_block_attributes( $libreria_shop_attrs ) . ' /-->' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
+
 		foreach ( $libreria_menu_slugs as $libreria_slug ) {
 			$libreria_term = get_term_by( 'slug', $libreria_slug, 'product_cat' );
 			if ( ! $libreria_term ) {
@@ -35,7 +46,7 @@ $libreria_menu_slugs = array( 'ficcion', 'infantil', 'academicos', 'historia' );
 				'url'   => $libreria_link,
 				'kind'  => 'taxonomy',
 			);
-			echo '<!-- wp:navigation-link ' . wp_json_encode( $libreria_attrs, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . ' /-->' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo '<!-- wp:navigation-link ' . serialize_block_attributes( $libreria_attrs ) . ' /-->' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 		?>
 		<!-- /wp:navigation -->

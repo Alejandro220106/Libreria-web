@@ -8,6 +8,8 @@
  * @package libreria-child
  */
 
+defined( 'ABSPATH' ) || exit;
+
 $libreria_has_woo = function_exists( 'wc_get_page_permalink' );
 
 // Shop column: the shop page plus the same top-level categories as the header menu.
