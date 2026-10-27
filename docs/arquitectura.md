@@ -73,3 +73,7 @@ Los puertos se enlazan en el service container, en un service provider. Es el mi
 
 - Revisar que cada carpeta de la tabla de capas exista y que ninguna regla de negocio llame a Eloquent, HTTP ni `now()`.
 - `php artisan test` debe pasar sin internet.
+
+## Retención de la bitácora
+
+Los registros de `integration_logs` se borran solos cuando superan `INTEGRATION_LOG_RETENTION_DAYS` días (por defecto **30**, definido en `config/integration_log.php`). El Scheduler de Laravel ejecuta `model:prune` una vez al día. `GET /api/v1/bitacora` y el panel del Proyecto Integrador solo ven lo que queda dentro de ese periodo.
