@@ -30,6 +30,7 @@ class WooCommerceClient implements StoreClient
         try {
             $response = Http::withBasicAuth((string) config('store.key'), (string) config('store.secret'))
                 ->acceptJson()
+                ->withOptions(['verify' => (bool) config('store.verify_ssl')])
                 ->timeout((int) config('store.timeout'))
                 ->retry(
                     (int) config('store.tries'),

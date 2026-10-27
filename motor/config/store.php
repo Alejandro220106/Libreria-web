@@ -15,6 +15,10 @@ return [
     'tries' => (int) env('STORE_TRIES', 3),
     'backoff_ms' => (int) env('STORE_BACKOFF_MS', 500),
 
+    // Verify the store's TLS certificate. Keep true everywhere except a local store
+    // (for example LocalWP) whose certificate is self-signed: set false only in your own .env.
+    'verify_ssl' => filter_var(env('STORE_VERIFY_SSL', true), FILTER_VALIDATE_BOOLEAN),
+
     // Products per page when syncing.
     'per_page' => (int) env('STORE_PER_PAGE', 100),
 
