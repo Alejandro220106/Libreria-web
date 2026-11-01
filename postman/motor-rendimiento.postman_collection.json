@@ -1,0 +1,70 @@
+{
+  "info": {
+    "name": "motor-rendimiento",
+    "description": "Response-time baseline of the engine API with the large dataset (#81). Run it only after `php artisan db:seed --class=PerformanceSeeder`. It is not the instructor's collection.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000/api/v1" },
+    { "key": "max_ms", "value": "500" }
+  ],
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "exec": [
+          "pm.test('answers within the team target', () => {",
+          "  pm.expect(pm.response.responseTime).to.be.below(Number(pm.collectionVariables.get('max_ms')));",
+          "});"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Productos - primera pagina",
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));"] } }],
+      "request": { "method": "GET", "url": "{{base_url}}/productos" }
+    },
+    {
+      "name": "Productos - por_pagina 100",
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));"] } }],
+      "request": { "method": "GET", "url": "{{base_url}}/productos?por_pagina=100" }
+    },
+    {
+      "name": "Productos - pagina profunda",
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));"] } }],
+      "request": { "method": "GET", "url": "{{base_url}}/productos?pagina=1300" }
+    },
+    {
+      "name": "Productos - filtro sku",
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));"] } }],
+      "request": { "method": "GET", "url": "{{base_url}}/productos?sku=PERF-015000" }
+    },
+    {
+      "name": "Pedido por id",
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));"] } }],
+      "request": { "method": "GET", "url": "{{base_url}}/pedidos/205000" }
+    },
+    {
+      "name": "Pedido inexistente",
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('404', () => pm.response.to.have.status(404));"] } }],
+      "request": { "method": "GET", "url": "{{base_url}}/pedidos/999999" }
+    },
+    {
+      "name": "Bitacora - primera pagina",
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));"] } }],
+      "request": { "method": "GET", "url": "{{base_url}}/bitacora" }
+    },
+    {
+      "name": "Bitacora - sistema y estado",
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));"] } }],
+      "request": { "method": "GET", "url": "{{base_url}}/bitacora?sistema=tienda&estado=fallo" }
+    },
+    {
+      "name": "Bitacora - pagina profunda",
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));"] } }],
+      "request": { "method": "GET", "url": "{{base_url}}/bitacora?pagina=3000" }
+    }
+  ]
+}
