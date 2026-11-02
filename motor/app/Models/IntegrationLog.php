@@ -6,6 +6,7 @@ use App\Domain\IntegrationLog\LogDirection;
 use App\Domain\IntegrationLog\LogStatus;
 use App\Domain\IntegrationLog\LogSystem;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Prunable;
 
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\Prunable;
  */
 class IntegrationLog extends Model
 {
-    use Prunable;
+    use HasFactory, Prunable;
 
     // The table has its own logged_at column instead of created_at / updated_at.
     public $timestamps = false;

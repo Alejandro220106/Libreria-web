@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /** A store order copied into the engine. Customer personal data is never stored here. */
 class Order extends Model
 {
+    use HasFactory;
+
     protected $guarded = [];
 
     protected function casts(): array
