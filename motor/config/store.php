@@ -22,4 +22,7 @@ return [
     // Products per page when syncing.
     'per_page' => (int) env('STORE_PER_PAGE', 100),
 
+    // How often the scheduler runs the incremental product sync (cron expression).
+    'sync_cron' => env('STORE_SYNC_CRON', '*/15 * * * *'),
+
 ];
