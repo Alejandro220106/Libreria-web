@@ -4,26 +4,43 @@ namespace App\Application\Products;
 
 use App\Application\Ports\StoreClient;
 use App\Models\Product;
+use App\Models\SyncState;
 use Carbon\CarbonInterface;
 
 /**
- * Copies every store product into the engine's database.
+ * Copies the store products into the engine's database.
  *
  * It asks the store for one page at a time and writes that page with a single upsert
  * keyed by the WooCommerce id, so memory does not grow with the catalog and running it
  * twice updates the same rows instead of duplicating them.
+ *
+ * With a $modifiedAfter date it asks only for the products changed after it (incremental).
+ * Without it, it copies every product (the full sync the brief requires).
  */
 class SyncProducts
 {
     /** The store calls these types in English; the contract uses Spanish. */
     private const TYPES = ['simple' => 'simple', 'variable' => 'variable', 'grouped' => 'agrupado', 'external' => 'externo'];
 
+    /** Row of sync_states that belongs to this sync. */
+    private const STATE = 'products';
+
     public function __construct(private readonly StoreClient $store) {}
 
     /**
+     * Start time of the last sync that finished well, or null if there was none.
+     */
+    public function lastSync(): ?CarbonInterface
+    {
+        return SyncState::where('name', self::STATE)->first()?->last_succeeded_at;
+    }
+
+    /**
+     * @param  CarbonInterface  $now  Start time of this run (UTC).
+     * @param  CarbonInterface|null  $modifiedAfter  Only products changed after this date; null for all.
      * @return int Number of products written.
      */
-    public function handle(CarbonInterface $now): int
+    public function handle(CarbonInterface $now, ?CarbonInterface $modifiedAfter = null): int
     {
         $written = 0;
         $page = 1;
@@ -33,6 +50,7 @@ class SyncProducts
             $response = $this->store->get('products', [
                 'page' => $page,
                 'per_page' => (int) config('store.per_page'),
+                ...$this->changedSince($modifiedAfter),
             ]);
 
             $totalPages = $response['total_pages'];
@@ -50,7 +68,31 @@ class SyncProducts
             $page++;
         } while ($page <= $totalPages);
 
+        // Only reached when every page worked: a failed call throws before this line,
+        // so the stored date does not move forward and the next run asks again.
+        // It saves the START time, so products edited while this run was going are not missed.
+        SyncState::updateOrCreate(['name' => self::STATE], ['last_succeeded_at' => $now]);
+
         return $written;
+    }
+
+    /**
+     * Query parameters that limit the request to changed products.
+     * dates_are_gmt makes WooCommerce compare against the UTC modified date
+     * instead of the store's local time.
+     *
+     * @return array<string, string>
+     */
+    private function changedSince(?CarbonInterface $modifiedAfter): array
+    {
+        if ($modifiedAfter === null) {
+            return [];
+        }
+
+        return [
+            'modified_after' => $modifiedAfter->toImmutable()->utc()->format('Y-m-d\TH:i:s'),
+            'dates_are_gmt' => 'true',
+        ];
     }
 
     /**

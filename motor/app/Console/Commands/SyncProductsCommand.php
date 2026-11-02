@@ -8,15 +8,28 @@ use Illuminate\Support\Facades\Date;
 
 class SyncProductsCommand extends Command
 {
-    protected $signature = 'tienda:sincronizar-productos';
+    protected $signature = 'tienda:sincronizar-productos
+        {--incremental : Only copy the products changed since the last successful sync}';
 
-    protected $description = 'Copy every store product into the engine database';
+    protected $description = 'Copy the store products into the engine database';
 
     public function handle(SyncProducts $sync): int
     {
-        $count = $sync->handle(Date::now()->utc());
+        $since = null;
 
-        $this->info("Synced {$count} products.");
+        if ($this->option('incremental')) {
+            $since = $sync->lastSync();
+
+            if ($since === null) {
+                $this->warn('No previous sync found, running a full sync.');
+            }
+        }
+
+        $count = $sync->handle(Date::now()->utc(), $since);
+
+        $this->info($since === null
+            ? "Synced {$count} products."
+            : "Synced {$count} products changed since {$since->toIso8601String()}.");
 
         return self::SUCCESS;
     }

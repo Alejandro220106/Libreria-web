@@ -11,3 +11,9 @@ Artisan::command('inspire', function () {
 
 // Delete integration-log records past the retention period (#78).
 Schedule::command('model:prune', ['--model' => [IntegrationLog::class]])->daily();
+
+// Copy only the products that changed since the last good sync (#76).
+// withoutOverlapping: if one run is still going, the next one is skipped instead of running twice.
+Schedule::command('tienda:sincronizar-productos', ['--incremental'])
+    ->cron(config('store.sync_cron'))
+    ->withoutOverlapping();
