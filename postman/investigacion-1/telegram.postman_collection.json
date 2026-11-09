@@ -221,15 +221,15 @@
   "variable": [
     {
       "key": "pedido_numero",
-      "value": "1001"
+      "value": "136"
     },
     {
       "key": "pedido_productos",
-      "value": "1 x Cien anos de soledad, 2 x El principito"
+      "value": "1 x Cocorí, 1 x El principito - Tapa blanda"
     },
     {
       "key": "pedido_total",
-      "value": "25500.00"
+      "value": "10800.00"
     },
     {
       "key": "pedido_moneda",
