@@ -1,0 +1,172 @@
+{
+    "id": 136,
+    "parent_id": 0,
+    "status": "processing",
+    "currency": "CRC",
+    "version": "11.2.2",
+    "prices_include_tax": false,
+    "date_created": "2026-11-09T16:10:24",
+    "date_modified": "2026-11-09T16:13:13",
+    "discount_total": "0",
+    "discount_tax": "0",
+    "shipping_total": "0",
+    "shipping_tax": "0",
+    "cart_tax": "0",
+    "total": "10800",
+    "total_tax": "0",
+    "customer_id": 0,
+    "order_key": "wc_order_9HDJrtPfucN5p",
+    "billing": {
+        "first_name": "prueba",
+        "last_name": "prueba",
+        "company": "prueba",
+        "address_1": "prueba",
+        "address_2": "prueba",
+        "city": "prueba",
+        "state": "CR-L",
+        "postcode": "2002",
+        "country": "CR",
+        "email": "cliente@ejemplo.test",
+        "phone": "88888888"
+    },
+    "shipping": {
+        "first_name": "",
+        "last_name": "",
+        "company": "",
+        "address_1": "",
+        "address_2": "",
+        "city": "",
+        "state": "",
+        "postcode": "",
+        "country": "",
+        "phone": ""
+    },
+    "payment_method": "cod",
+    "payment_method_title": "Contra reembolso",
+    "transaction_id": "2",
+    "customer_ip_address": "",
+    "customer_user_agent": "",
+    "created_via": "admin",
+    "customer_note": "",
+    "date_completed": null,
+    "date_paid": null,
+    "cart_hash": "",
+    "number": "136",
+    "meta_data": [
+        {
+            "id": 62,
+            "key": "_wc_order_attribution_source_type",
+            "value": "admin"
+        }
+    ],
+    "line_items": [
+        {
+            "id": 8,
+            "name": "Cocorí",
+            "product_id": 66,
+            "variation_id": 0,
+            "quantity": 1,
+            "tax_class": "",
+            "subtotal": "4900",
+            "subtotal_tax": "0",
+            "total": "4900",
+            "total_tax": "0",
+            "taxes": [],
+            "meta_data": [
+                {
+                    "id": 76,
+                    "key": "_reduced_stock",
+                    "value": "1",
+                    "display_key": "_reduced_stock",
+                    "display_value": "1"
+                }
+            ],
+            "sku": "LIB-00010",
+            "global_unique_id": "",
+            "price": 4900,
+            "image": {
+                "id": "65",
+                "src": "https://librera.local/wp-content/uploads/2026/10/lib-00010-portada.png"
+            },
+            "parent_name": null
+        },
+        {
+            "id": 9,
+            "name": "El principito - Tapa blanda",
+            "product_id": 60,
+            "variation_id": 61,
+            "quantity": 1,
+            "tax_class": "",
+            "subtotal": "5900",
+            "subtotal_tax": "0",
+            "total": "5900",
+            "total_tax": "0",
+            "taxes": [],
+            "meta_data": [
+                {
+                    "id": 75,
+                    "key": "pa_formato",
+                    "value": "tapa-blanda",
+                    "display_key": "Formato",
+                    "display_value": "Tapa blanda"
+                },
+                {
+                    "id": 77,
+                    "key": "_reduced_stock",
+                    "value": "1",
+                    "display_key": "_reduced_stock",
+                    "display_value": "1"
+                }
+            ],
+            "sku": "LIB-00008-TB",
+            "global_unique_id": "",
+            "price": 5900,
+            "image": {
+                "id": 59,
+                "src": "https://librera.local/wp-content/uploads/2026/10/lib-00008-portada.png"
+            },
+            "parent_name": "El principito"
+        }
+    ],
+    "tax_lines": [],
+    "shipping_lines": [],
+    "fee_lines": [],
+    "coupon_lines": [],
+    "refunds": [],
+    "payment_url": "https://librera.local/finalizar-compra/order-pay/136/?pay_for_order=true&key=wc_order_9HDJrtPfucN5p",
+    "is_editable": false,
+    "needs_payment": false,
+    "needs_processing": true,
+    "date_created_gmt": "2026-11-09T16:10:24",
+    "date_modified_gmt": "2026-11-09T16:13:13",
+    "date_completed_gmt": null,
+    "date_paid_gmt": null,
+    "currency_symbol": "₡",
+    "_links": {
+        "self": [
+            {
+                "href": "https://librera.local/wp-json/wc/v3/orders/136",
+                "targetHints": {
+                    "allow": [
+                        "GET",
+                        "POST",
+                        "PUT",
+                        "PATCH",
+                        "DELETE"
+                    ]
+                }
+            }
+        ],
+        "collection": [
+            {
+                "href": "https://librera.local/wp-json/wc/v3/orders"
+            }
+        ],
+        "email_templates": [
+            {
+                "embeddable": true,
+                "href": "https://librera.local/wp-json/wc/v3/orders/136/actions/email_templates"
+            }
+        ]
+    }
+}

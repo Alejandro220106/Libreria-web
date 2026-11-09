@@ -1,0 +1,239 @@
+{
+  "info": {
+    "_postman_id": "0fa8d223-f6ea-412d-afee-4126ad2f851b",
+    "name": "Telegram",
+    "description": "Spike of the Telegram Bot API, the chosen provider (Applied Research 1). The token goes in the URL, so there is no separate authentication request. The action sends the test order to the team's own test chat.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "conexion",
+      "item": [
+        {
+          "name": "Consultar el bot",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('The token belongs to a bot', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.ok).to.eql(true);",
+                  "    pm.expect(body.result.is_bot).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.telegram.org/bot{{telegram_token}}/getMe",
+              "protocol": "https",
+              "host": [
+                "api",
+                "telegram",
+                "org"
+              ],
+              "path": [
+                "bot{{telegram_token}}",
+                "getMe"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "accion",
+      "item": [
+        {
+          "name": "Enviar confirmacion del pedido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Telegram returns the message id', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.ok).to.eql(true);",
+                  "    pm.expect(body.result.message_id).to.be.a('number');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"chat_id\": \"{{chat_id}}\",\n  \"text\": \"Gracias por su compra.\\nPedido: #{{pedido_numero}}\\nProductos: {{pedido_productos}}\\nTotal: {{pedido_total}} {{pedido_moneda}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://api.telegram.org/bot{{telegram_token}}/sendMessage",
+              "protocol": "https",
+              "host": [
+                "api",
+                "telegram",
+                "org"
+              ],
+              "path": [
+                "bot{{telegram_token}}",
+                "sendMessage"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "errores",
+      "item": [
+        {
+          "name": "Credenciales invalidas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "pm.test('Telegram explains the error', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.ok).to.eql(false);",
+                  "    pm.expect(body.error_code).to.eql(401);",
+                  "    pm.expect(body.description).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"chat_id\": \"{{chat_id}}\",\n  \"text\": \"Gracias por su compra.\\nPedido: #{{pedido_numero}}\\nProductos: {{pedido_productos}}\\nTotal: {{pedido_total}} {{pedido_moneda}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://api.telegram.org/bot123456:token-invalido/sendMessage",
+              "protocol": "https",
+              "host": [
+                "api",
+                "telegram",
+                "org"
+              ],
+              "path": [
+                "bot123456:token-invalido",
+                "sendMessage"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Datos invalidos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test('Telegram explains the error', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.ok).to.eql(false);",
+                  "    pm.expect(body.error_code).to.eql(400);",
+                  "    pm.expect(body.description).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"chat_id\": \"\",\n  \"text\": \"Gracias por su compra.\\nPedido: #{{pedido_numero}}\\nProductos: {{pedido_productos}}\\nTotal: {{pedido_total}} {{pedido_moneda}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://api.telegram.org/bot{{telegram_token}}/sendMessage",
+              "protocol": "https",
+              "host": [
+                "api",
+                "telegram",
+                "org"
+              ],
+              "path": [
+                "bot{{telegram_token}}",
+                "sendMessage"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "pedido_numero",
+      "value": "136"
+    },
+    {
+      "key": "pedido_productos",
+      "value": "1 x Cocorí, 1 x El principito - Tapa blanda"
+    },
+    {
+      "key": "pedido_total",
+      "value": "10800.00"
+    },
+    {
+      "key": "pedido_moneda",
+      "value": "CRC"
+    }
+  ]
+}
