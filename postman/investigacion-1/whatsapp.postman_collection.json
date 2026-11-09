@@ -1,0 +1,143 @@
+{
+  "info": {
+    "_postman_id": "1747adb7-4b0e-4b6c-aa64-3b765c3021c9",
+    "name": "WhatsApp",
+    "description": "Spike of the WhatsApp Business Cloud API (Applied Research 1). Uses the Meta test phone number and a temporary access token sent as a Bearer token, so there is no separate authentication request. A free-text message only reaches the recipient if they wrote to the test number in the last 24 hours.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "conexion",
+      "item": [
+        {
+          "name": "Consultar el numero de prueba",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Returns the configured phone number', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.id).to.eql(pm.environment.get('phone_number_id'));",
+                  "    pm.expect(body.display_phone_number).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://graph.facebook.com/{{graph_version}}/{{phone_number_id}}",
+              "protocol": "https",
+              "host": [
+                "graph",
+                "facebook",
+                "com"
+              ],
+              "path": [
+                "{{graph_version}}",
+                "{{phone_number_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "accion",
+      "item": [
+        {
+          "name": "Enviar confirmacion del pedido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('WhatsApp returns the message id', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.messages).to.be.an('array').that.is.not.empty;",
+                  "    pm.expect(body.messages[0].id).to.match(/^wamid\\./);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"{{to_phone}}\",\n  \"type\": \"text\",\n  \"text\": {\n    \"body\": \"Gracias por su compra.\\nPedido: #{{pedido_numero}}\\nProductos: {{pedido_productos}}\\nTotal: {{pedido_total}} {{pedido_moneda}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://graph.facebook.com/{{graph_version}}/{{phone_number_id}}/messages",
+              "protocol": "https",
+              "host": [
+                "graph",
+                "facebook",
+                "com"
+              ],
+              "path": [
+                "{{graph_version}}",
+                "{{phone_number_id}}",
+                "messages"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{whatsapp_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "graph_version",
+      "value": "v27.0"
+    },
+    {
+      "key": "pedido_numero",
+      "value": "136"
+    },
+    {
+      "key": "pedido_productos",
+      "value": "1 x Cocorí, 1 x El principito - Tapa blanda"
+    },
+    {
+      "key": "pedido_total",
+      "value": "10800.00"
+    },
+    {
+      "key": "pedido_moneda",
+      "value": "CRC"
+    }
+  ]
+}
