@@ -1,0 +1,351 @@
+{
+  "info": {
+    "_postman_id": "42f6a0a6-23c3-4beb-a0b3-164425b4a7b4",
+    "name": "Mailtrap",
+    "description": "Spike of the Mailtrap Email Sandbox API (Applied Research 1). The action sends the test order confirmation to the team's sandbox inbox; no email reaches a real person.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "autenticacion",
+      "item": [
+        {
+          "name": "Obtener cuenta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response lists at least one account', function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array').that.is.not.empty;",
+                  "});",
+                  "// Save the id only when the call worked, so a failed run does not break the script.",
+                  "if (pm.response.code === 200) {",
+                  "    pm.environment.set('account_id', pm.response.json()[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "https://mailtrap.io/api/accounts",
+              "protocol": "https",
+              "host": [
+                "mailtrap",
+                "io"
+              ],
+              "path": [
+                "api",
+                "accounts"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "conexion",
+      "item": [
+        {
+          "name": "Consultar la bandeja de pruebas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Returns the configured inbox', function () {",
+                  "    pm.expect(String(pm.response.json().id)).to.eql(pm.environment.get('inbox_id'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "https://mailtrap.io/api/accounts/{{account_id}}/inboxes/{{inbox_id}}",
+              "protocol": "https",
+              "host": [
+                "mailtrap",
+                "io"
+              ],
+              "path": [
+                "api",
+                "accounts",
+                "{{account_id}}",
+                "inboxes",
+                "{{inbox_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "accion",
+      "item": [
+        {
+          "name": "Enviar confirmacion del pedido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Mailtrap returns the message id', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.success).to.eql(true);",
+                  "    pm.expect(body.message_ids).to.be.an('array').that.is.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"from\": {\n    \"email\": \"{{from_email}}\",\n    \"name\": \"{{from_name}}\"\n  },\n  \"to\": [\n    {\n      \"email\": \"{{to_email}}\"\n    }\n  ],\n  \"subject\": \"Pedido #{{pedido_numero}} recibido\",\n  \"text\": \"Gracias por su compra.\\nPedido: #{{pedido_numero}}\\nProductos: {{pedido_productos}}\\nTotal: {{pedido_total}} {{pedido_moneda}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://sandbox.api.mailtrap.io/api/send/{{inbox_id}}",
+              "protocol": "https",
+              "host": [
+                "sandbox",
+                "api",
+                "mailtrap",
+                "io"
+              ],
+              "path": [
+                "api",
+                "send",
+                "{{inbox_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "errores",
+      "item": [
+        {
+          "name": "Credenciales invalidas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "pm.test('Response explains the error', function () {",
+                  "    pm.expect(pm.response.json()).to.have.property('errors');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "token-invalido",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"from\": {\n    \"email\": \"{{from_email}}\",\n    \"name\": \"{{from_name}}\"\n  },\n  \"to\": [\n    {\n      \"email\": \"{{to_email}}\"\n    }\n  ],\n  \"subject\": \"Pedido #{{pedido_numero}} recibido\",\n  \"text\": \"Gracias por su compra.\\nPedido: #{{pedido_numero}}\\nProductos: {{pedido_productos}}\\nTotal: {{pedido_total}} {{pedido_moneda}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://sandbox.api.mailtrap.io/api/send/{{inbox_id}}",
+              "protocol": "https",
+              "host": [
+                "sandbox",
+                "api",
+                "mailtrap",
+                "io"
+              ],
+              "path": [
+                "api",
+                "send",
+                "{{inbox_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Datos invalidos",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// The free sandbox answers 429 to a send a few seconds after another one,",
+                  "// before validating the body. Waiting first lets us see the real validation error.",
+                  "setTimeout(function () {}, 10000);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Observed on 2026-11-09: 400 with \"'to', 'cc' or 'bcc' address is required\".",
+                  "pm.test('Status is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test('Response explains the error', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.success).to.eql(false);",
+                  "    pm.expect(body.errors).to.be.an('array').that.is.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"from\": {\n    \"email\": \"{{from_email}}\",\n    \"name\": \"{{from_name}}\"\n  },\n  \"to\": [],\n  \"subject\": \"Pedido #{{pedido_numero}} recibido\",\n  \"text\": \"Gracias por su compra.\\nPedido: #{{pedido_numero}}\\nProductos: {{pedido_productos}}\\nTotal: {{pedido_total}} {{pedido_moneda}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://sandbox.api.mailtrap.io/api/send/{{inbox_id}}",
+              "protocol": "https",
+              "host": [
+                "sandbox",
+                "api",
+                "mailtrap",
+                "io"
+              ],
+              "path": [
+                "api",
+                "send",
+                "{{inbox_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{mailtrap_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "from_email",
+      "value": "tienda@libreria.test"
+    },
+    {
+      "key": "from_name",
+      "value": "Libreria Web"
+    },
+    {
+      "key": "to_email",
+      "value": "cliente@ejemplo.test"
+    },
+    {
+      "key": "pedido_numero",
+      "value": "1001"
+    },
+    {
+      "key": "pedido_productos",
+      "value": "1 x Cien anos de soledad, 2 x El principito"
+    },
+    {
+      "key": "pedido_total",
+      "value": "25500.00"
+    },
+    {
+      "key": "pedido_moneda",
+      "value": "CRC"
+    }
+  ]
+}
