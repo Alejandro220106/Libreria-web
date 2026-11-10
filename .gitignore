@@ -3,6 +3,7 @@ vendor/
 node_modules/
 !.env.example
 *.sql
+!motor/database/roles.sql
 *.zip
 *.wpress
 postman/*.postman_environment.json
