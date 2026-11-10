@@ -2,10 +2,10 @@
 
 use App\Models\IntegrationLog;
 use App\Models\WebhookDelivery;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshDatabaseAsOwner;
 use Illuminate\Support\Facades\Bus;
 
-uses(RefreshDatabase::class);
+uses(RefreshDatabaseAsOwner::class);
 
 beforeEach(function () {
     config(['store.webhook_secret' => 'whsec_test']);

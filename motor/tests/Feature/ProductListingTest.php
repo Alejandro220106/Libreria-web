@@ -1,9 +1,9 @@
 <?php
 
 use Database\Seeders\ProductSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshDatabaseAsOwner;
 
-uses(RefreshDatabase::class);
+uses(RefreshDatabaseAsOwner::class);
 
 beforeEach(fn () => $this->seed(ProductSeeder::class));
 

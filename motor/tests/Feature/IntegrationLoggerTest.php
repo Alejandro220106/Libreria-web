@@ -6,9 +6,9 @@ use App\Domain\IntegrationLog\LogStatus;
 use App\Domain\IntegrationLog\LogSystem;
 use App\Infrastructure\Logging\DatabaseIntegrationLogger;
 use App\Models\IntegrationLog;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshDatabaseAsOwner;
 
-uses(RefreshDatabase::class);
+uses(RefreshDatabaseAsOwner::class);
 
 it('is bound to the database adapter', function () {
     expect(app(IntegrationLogger::class))->toBeInstanceOf(DatabaseIntegrationLogger::class);

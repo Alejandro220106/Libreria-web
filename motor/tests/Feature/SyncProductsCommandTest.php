@@ -1,10 +1,10 @@
 <?php
 
 use App\Models\Product;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshDatabaseAsOwner;
 use Illuminate\Support\Facades\Http;
 
-uses(RefreshDatabase::class);
+uses(RefreshDatabaseAsOwner::class);
 
 beforeEach(function () {
     config([
