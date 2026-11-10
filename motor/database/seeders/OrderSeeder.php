@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -9,7 +10,7 @@ class OrderSeeder extends Seeder
 {
     public function run(): void
     {
-        $now = now()->utc();
+        $now = now();
 
         $line = fn (string $sku, string $name, int $quantity, int $price) => [
             'sku' => $sku,
@@ -90,9 +91,9 @@ class OrderSeeder extends Seeder
             'connector_status' => $order['connector_status'],
             'connector_detail' => $order['connector_detail'],
             'connector_reference' => $order['connector_reference'],
-            'connector_updated_at' => $order['connector_status'] === 'pending' ? null : $order['ordered_at'],
-            'ordered_at' => $order['ordered_at'],
-            'source_updated_at' => $order['ordered_at'],
+            'connector_updated_at' => $order['connector_status'] === 'pending' ? null : $this->appZone($order['ordered_at']),
+            'ordered_at' => $this->appZone($order['ordered_at']),
+            'source_updated_at' => $this->appZone($order['ordered_at']),
             'synced_at' => $now,
             'created_at' => $now,
             'updated_at' => $now,
@@ -103,5 +104,11 @@ class OrderSeeder extends Seeder
             ['id'],
             ['status', 'total', 'lines', 'address_text', 'address_status', 'address_normalized', 'connector_status', 'updated_at'],
         );
+    }
+
+    /** The sample dates are written in UTC; the columns store the app's zone. */
+    private function appZone(string $utc): string
+    {
+        return CarbonImmutable::parse($utc, 'UTC')->setTimezone(config('app.timezone'))->toDateTimeString();
     }
 }

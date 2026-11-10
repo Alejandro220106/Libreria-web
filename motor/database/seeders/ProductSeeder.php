@@ -9,7 +9,7 @@ class ProductSeeder extends Seeder
 {
     public function run(): void
     {
-        $now = now()->utc();
+        $now = now();
 
         // sku, name, type, price (colones), stock, category, author
         $rows = [

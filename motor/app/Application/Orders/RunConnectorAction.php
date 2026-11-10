@@ -41,7 +41,7 @@ class RunConnectorAction
             'connector_status' => $result->success ? 'success' : 'failure',
             'connector_detail' => $result->success ? 'sent' : mb_substr((string) $result->detail, 0, 255),
             'connector_reference' => $result->reference,
-            'connector_updated_at' => now()->utc(),
+            'connector_updated_at' => now(),
         ]);
     }
 

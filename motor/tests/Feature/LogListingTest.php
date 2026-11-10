@@ -57,7 +57,7 @@ it('combines filters with and', function () {
         ->and(collect($rows)->every(fn ($r) => $r['sistema'] === 'ia' && $r['estado'] === 'fallo'))->toBeTrue();
 });
 
-it('filters by date range and converts offsets to UTC', function () {
+it('filters by date range and converts offsets to the app timezone', function () {
     // Newest entry is 2026-11-10 21:59 UTC. 17:59 at -04:00 is the same instant.
     $this->getJson('/api/v1/bitacora?'.http_build_query(['desde' => '2026-11-10T17:59:00-04:00']))
         ->assertOk()

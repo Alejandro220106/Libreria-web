@@ -24,8 +24,8 @@ class LogController extends Controller
             ->when($request->query('estado'), fn ($q, $v) => $q->where('status', LogStatus::fromContract($v)))
             ->when($request->query('direccion'), fn ($q, $v) => $q->where('direction', LogDirection::fromContract($v)))
             ->when($request->query('correlacion'), fn ($q, $v) => $q->where('correlation_id', $v))
-            ->when($request->query('desde'), fn ($q, $v) => $q->where('logged_at', '>=', $this->toUtc($v)))
-            ->when($request->query('hasta'), fn ($q, $v) => $q->where('logged_at', '<=', $this->toUtc($v)))
+            ->when($request->query('desde'), fn ($q, $v) => $q->where('logged_at', '>=', $this->toAppZone($v)))
+            ->when($request->query('hasta'), fn ($q, $v) => $q->where('logged_at', '<=', $this->toAppZone($v)))
             ->orderByDesc('logged_at')
             ->orderByDesc('id')
             ->paginate($request->perPage(), ['*'], 'pagina', $request->page());
@@ -36,9 +36,9 @@ class LogController extends Controller
         );
     }
 
-    // Dates are stored in UTC, so a date with another offset is converted first.
-    private function toUtc(string $value): string
+    // Dates are stored in the app's zone, so a date with another offset is converted first.
+    private function toAppZone(string $value): string
     {
-        return CarbonImmutable::parse($value)->utc()->toDateTimeString();
+        return CarbonImmutable::parse($value)->setTimezone(config('app.timezone'))->toDateTimeString();
     }
 }

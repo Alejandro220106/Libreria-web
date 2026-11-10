@@ -29,7 +29,7 @@ function newOrder(array $overrides = []): Order
         'total' => 5200,
         'lines' => [['sku' => 'LIB-01', 'quantity' => 1]],
         'address_text' => '100 metros norte de la iglesia de Ciudad Quesada',
-        'ordered_at' => now()->utc(),
+        'ordered_at' => now(),
     ], $overrides));
 }
 

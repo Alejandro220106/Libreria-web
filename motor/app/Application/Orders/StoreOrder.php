@@ -71,6 +71,9 @@ class StoreOrder
     private function date(?string $value, CarbonImmutable $fallback): CarbonImmutable
     {
         // WooCommerce sends the *_gmt fields without a zone: they are UTC.
-        return $value ? CarbonImmutable::parse($value, 'UTC') : $fallback;
+        // The columns have no zone, so the date is stored in the app's zone.
+        return $value
+            ? CarbonImmutable::parse($value, 'UTC')->setTimezone(config('app.timezone'))
+            : $fallback;
     }
 }

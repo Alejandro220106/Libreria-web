@@ -16,7 +16,7 @@ it('returns one order in the exact contract shape', function () {
             'estado' => 'processing',
             'moneda' => 'CRC',
             'total' => 16900,
-            'creado_en' => '2026-11-10T20:02:55+00:00',
+            'creado_en' => '2026-11-10T14:02:55-06:00',
             'lineas' => [
                 ['sku' => 'CONTRATO-001', 'nombre' => 'Cuentos de mi tía Panchita', 'cantidad' => 2, 'precio_unitario' => 5200, 'subtotal' => 10400],
                 ['sku' => 'LIB-PRI-01', 'nombre' => 'El principito', 'cantidad' => 1, 'precio_unitario' => 6500, 'subtotal' => 6500],
@@ -36,7 +36,7 @@ it('returns one order in the exact contract shape', function () {
                 'estado' => 'exito',
                 'detalle' => 'sent',
                 'referencia_externa' => 'msg-88231',
-                'actualizado_en' => '2026-11-10T20:02:55+00:00',
+                'actualizado_en' => '2026-11-10T14:02:55-06:00',
             ],
         ]);
 });

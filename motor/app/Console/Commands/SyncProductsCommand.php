@@ -25,7 +25,7 @@ class SyncProductsCommand extends Command
             }
         }
 
-        $count = $sync->handle(Date::now()->utc(), $since);
+        $count = $sync->handle(Date::now(), $since);
 
         $this->info($since === null
             ? "Synced {$count} products."

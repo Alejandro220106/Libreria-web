@@ -5,6 +5,7 @@ namespace App\Application\Products;
 use App\Application\Ports\StoreClient;
 use App\Models\Product;
 use App\Models\SyncState;
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 
 /**
@@ -116,8 +117,11 @@ class SyncProducts
             'categories' => json_encode(array_column($product['categories'] ?? [], 'name'), JSON_UNESCAPED_UNICODE),
             // The plugin's own REST property (not meta_data).
             'author' => ($product['book_author'] ?? '') !== '' ? $product['book_author'] : null,
+            // The store sends UTC; the column has no zone, so it is stored in the app's zone.
             'source_updated_at' => isset($product['date_modified_gmt'])
-                ? $product['date_modified_gmt'].'Z'
+                ? CarbonImmutable::parse($product['date_modified_gmt'], 'UTC')
+                    ->setTimezone(config('app.timezone'))
+                    ->toDateTimeString()
                 : null,
             'synced_at' => $now,
         ];

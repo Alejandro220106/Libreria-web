@@ -66,7 +66,18 @@ it('saves the order and answers 200 with a valid signature', function () {
         ->and($order->lines[0]['sku'])->toBe('CONTRATO-001')
         ->and($order->address_text)->toBe('100 metros norte de la iglesia, casa verde, Ciudad Quesada, Alajuela')
         ->and($order->address_status)->toBe('unprocessed')
-        ->and($order->ordered_at->toDateTimeString())->toBe('2026-11-10 20:02:55');
+        ->and($order->ordered_at->toDateTimeString())->toBe('2026-11-10 14:02:55');
+});
+
+it('keeps the same instant when it stores the UTC order date in Costa Rica time', function () {
+    Bus::fake();
+
+    // WooCommerce sends date_created_gmt in UTC: 20:02 UTC is 14:02 in Costa Rica.
+    sendOrder(orderPayload(['date_created_gmt' => '2026-11-10T20:02:55']))->assertOk();
+
+    $orderedAt = Order::sole()->ordered_at;
+    expect($orderedAt->toIso8601String())->toBe('2026-11-10T14:02:55-06:00')
+        ->and($orderedAt->utc()->toDateTimeString())->toBe('2026-11-10 20:02:55');
 });
 
 it('never stores the customer personal data', function () {
