@@ -31,6 +31,8 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            // Same zone as the app, so now() in SQL matches now() in PHP.
+            'timezone' => env('APP_TIMEZONE', 'America/Costa_Rica'),
         ],
 
         // Schema owner: only for `php artisan migrate --database=pgsql_admin`, never for requests.
@@ -46,6 +48,8 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            // Same zone as the app, so now() in SQL matches now() in PHP.
+            'timezone' => env('APP_TIMEZONE', 'America/Costa_Rica'),
         ],
 
     ],
