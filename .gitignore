@@ -6,3 +6,5 @@ node_modules/
 *.zip
 *.wpress
 postman/*.postman_environment.json
+postman/**/*.postman_environment.json
+!postman/**/*.postman_environment.example.json
