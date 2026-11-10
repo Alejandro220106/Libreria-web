@@ -5,9 +5,9 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\IntegrationLog;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshDatabaseAsOwner;
 
-uses(RefreshDatabase::class);
+uses(RefreshDatabaseAsOwner::class);
 
 beforeEach(function () {
     config([

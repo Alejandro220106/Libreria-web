@@ -2,9 +2,9 @@
 
 use App\Models\Order;
 use Database\Seeders\OrderSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshDatabaseAsOwner;
 
-uses(RefreshDatabase::class);
+uses(RefreshDatabaseAsOwner::class);
 
 beforeEach(fn () => $this->seed(OrderSeeder::class));
 

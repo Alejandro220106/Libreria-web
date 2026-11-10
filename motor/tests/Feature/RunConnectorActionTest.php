@@ -6,10 +6,10 @@ use App\Conectores\ConnectorOrder;
 use App\Conectores\ConnectorResult;
 use App\Models\IntegrationLog;
 use App\Models\Order;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshDatabaseAsOwner;
 use Illuminate\Support\Facades\Http;
 
-uses(RefreshDatabase::class);
+uses(RefreshDatabaseAsOwner::class);
 
 beforeEach(function () {
     config([

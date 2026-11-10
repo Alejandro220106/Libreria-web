@@ -1,10 +1,10 @@
 <?php
 
 use App\Models\Product;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshDatabaseAsOwner;
 use Illuminate\Support\Facades\Http;
 
-uses(RefreshDatabase::class);
+uses(RefreshDatabaseAsOwner::class);
 
 beforeEach(function () {
     // The listing is served from the engine database: any call to the store fails the test.
