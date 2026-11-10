@@ -36,11 +36,11 @@ class ListRequest extends FormRequest
         $max = config('api.pagination.max_per_page');
 
         return [
-            'pagina.integer' => 'Debe ser un entero mayor o igual que 1.',
-            'pagina.min' => 'Debe ser un entero mayor o igual que 1.',
-            'por_pagina.integer' => "Debe ser un entero entre 1 y {$max}.",
-            'por_pagina.min' => "Debe ser un entero entre 1 y {$max}.",
-            'por_pagina.max' => "Debe ser un entero entre 1 y {$max}.",
+            'pagina.integer' => __('api.fields.page'),
+            'pagina.min' => __('api.fields.page'),
+            'por_pagina.integer' => __('api.fields.per_page', ['max' => $max]),
+            'por_pagina.min' => __('api.fields.per_page', ['max' => $max]),
+            'por_pagina.max' => __('api.fields.per_page', ['max' => $max]),
         ];
     }
 

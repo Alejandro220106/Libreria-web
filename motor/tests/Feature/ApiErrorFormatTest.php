@@ -11,6 +11,7 @@ beforeEach(function () {
         });
         Route::get('forbidden', fn () => abort(403));
         Route::get('throttled', fn () => abort(429, '', ['Retry-After' => '30']));
+        Route::get('throttled-no-wait', fn () => abort(429));
         Route::get('crash', fn () => throw new RuntimeException('Failure in /var/www/motor/app/Secret.php'));
     });
 });
@@ -44,7 +45,14 @@ it('keeps the Retry-After header on a 429', function () {
     $this->getJson('/api/v1/test/throttled')
         ->assertStatus(429)
         ->assertHeader('Retry-After', '30')
-        ->assertJsonPath('error.codigo', 'limite_excedido');
+        ->assertJsonPath('error.codigo', 'limite_excedido')
+        ->assertJsonPath('error.mensaje', 'Demasiadas peticiones. Intente de nuevo en 30 segundos.');
+});
+
+it('asks to try again later on a 429 without Retry-After', function () {
+    $this->getJson('/api/v1/test/throttled-no-wait')
+        ->assertStatus(429)
+        ->assertJsonPath('error.mensaje', 'Demasiadas peticiones. Intente de nuevo más tarde.');
 });
 
 it('hides internal details on a 500, even in debug mode', function () {

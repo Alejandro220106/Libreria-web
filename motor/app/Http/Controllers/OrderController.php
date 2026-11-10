@@ -17,7 +17,7 @@ class OrderController extends Controller
         $order = Order::where('woo_id', $id)->first();
 
         if ($order === null) {
-            return ApiError::response(404, 'no_encontrado', "No existe un pedido con id {$id}.");
+            return ApiError::response(404, 'no_encontrado', __('api.errors.order_not_found', ['id' => $id]));
         }
 
         return response()->json(OrderResource::make($order)->resolve());

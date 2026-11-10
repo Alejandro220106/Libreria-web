@@ -33,13 +33,21 @@ class LogListRequest extends ListRequest
     public function messages(): array
     {
         return parent::messages() + [
-            'sistema.in' => 'Debe ser uno de: '.implode(', ', $this->contractValues(LogSystem::cases())).'.',
-            'estado.in' => 'Debe ser uno de: '.implode(', ', $this->contractValues(LogStatus::cases())).'.',
-            'direccion.in' => 'Debe ser uno de: '.implode(', ', $this->contractValues(LogDirection::cases())).'.',
-            'correlacion.max' => 'Debe tener como máximo 100 caracteres.',
-            'desde.date' => 'Debe ser una fecha y hora en formato ISO 8601.',
-            'hasta.date' => 'Debe ser una fecha y hora en formato ISO 8601.',
+            'sistema.in' => $this->oneOf(LogSystem::cases()),
+            'estado.in' => $this->oneOf(LogStatus::cases()),
+            'direccion.in' => $this->oneOf(LogDirection::cases()),
+            'correlacion.max' => __('api.fields.max_characters', ['max' => 100]),
+            'desde.date' => __('api.fields.iso_date'),
+            'hasta.date' => __('api.fields.iso_date'),
         ];
+    }
+
+    /**
+     * @param  array<int, LogDirection|LogStatus|LogSystem>  $cases
+     */
+    private function oneOf(array $cases): string
+    {
+        return __('api.fields.one_of', ['values' => implode(', ', $this->contractValues($cases))]);
     }
 
     /**
