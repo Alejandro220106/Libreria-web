@@ -1,13 +1,14 @@
 <?php
 
 use App\Application\Ports\StoreClient;
-use Illuminate\Http\Client\RequestException;
-use Illuminate\Http\Client\Request;
-use Illuminate\Support\Facades\Http;
+use App\Infrastructure\Store\WooCommerceClient;
 use App\Models\IntegrationLog;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Request;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Http;
+use Tests\Support\RefreshDatabaseAsOwner;
 
-uses(RefreshDatabase::class);
+uses(RefreshDatabaseAsOwner::class);
 
 beforeEach(function () {
     config([
@@ -19,7 +20,7 @@ beforeEach(function () {
 });
 
 it('is bound to the WooCommerce adapter', function () {
-    expect(app(StoreClient::class))->toBeInstanceOf(\App\Infrastructure\Store\WooCommerceClient::class);
+    expect(app(StoreClient::class))->toBeInstanceOf(WooCommerceClient::class);
 });
 
 it('calls the store with basic auth and returns data and page count', function () {

@@ -5,11 +5,11 @@ use App\Jobs\ProcessOrder;
 use App\Models\IntegrationLog;
 use App\Models\Order;
 use App\Models\WebhookDelivery;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
+use Tests\Support\RefreshDatabaseAsOwner;
 
-uses(RefreshDatabase::class);
+uses(RefreshDatabaseAsOwner::class);
 
 beforeEach(function () {
     config([
