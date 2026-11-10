@@ -19,3 +19,7 @@ it('runs on PostgreSQL 18 or newer', function () {
 it('uses the testing database during tests', function () {
     expect(DB::connection()->getDatabaseName())->toEndWith('_testing');
 });
+
+it('generates version 7 uuids', function () {
+    expect((int) DB::scalar('select uuid_extract_version(uuidv7())'))->toBe(7);
+});
