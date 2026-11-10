@@ -38,7 +38,7 @@ class WooCommerceWebhookController extends Controller
         if (! $isValid) {
             $this->log($logger, 'order_created_webhook', LogStatus::InvalidSignature, 401, $request, 'The signature does not match');
 
-            return ApiError::response(401, 'firma_invalida', 'La firma del webhook no es válida.');
+            return ApiError::response(401, 'firma_invalida', __('api.errors.invalid_signature'));
         }
 
         // WooCommerce sends a ping when a webhook is saved: its body is only webhook_id.
@@ -51,16 +51,16 @@ class WooCommerceWebhookController extends Controller
         $deliveryId = $this->deliveryId($request);
 
         if ($deliveryId === null) {
-            return ApiError::response(422, 'validacion', 'Falta la cabecera de la entrega.', [
-                ['campo' => 'X-WC-Webhook-Delivery-ID', 'mensaje' => 'La cabecera es obligatoria.'],
+            return ApiError::response(422, 'validacion', __('api.errors.missing_delivery_header'), [
+                ['campo' => 'X-WC-Webhook-Delivery-ID', 'mensaje' => __('api.fields.header_required')],
             ]);
         }
 
         $payload = $request->json()->all();
 
         if (! is_int($payload['id'] ?? null) || $payload['id'] < 1) {
-            return ApiError::response(422, 'validacion', 'El pedido no trae un id válido.', [
-                ['campo' => 'id', 'mensaje' => 'Debe ser un entero positivo.'],
+            return ApiError::response(422, 'validacion', __('api.errors.invalid_order_id'), [
+                ['campo' => 'id', 'mensaje' => __('api.fields.positive_integer')],
             ]);
         }
 
