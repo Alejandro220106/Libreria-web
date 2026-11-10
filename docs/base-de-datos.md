@@ -38,7 +38,18 @@ Las migraciones **siempre** se corren con `--database=pgsql_admin`; sin esa opci
 ## Convenciones del esquema
 
 - Tablas en inglés, `snake_case` y en plural (`orders`, `integration_logs`).
-- Llave primaria `id`; llaves foráneas `<tabla_en_singular>_id`.
+- Llave primaria `id` autoincremental (el `id()` de Laravel). El video de referencia del profe usa `uuid DEFAULT uuidv7()`, pero el equipo decidió no cambiar las tablas existentes a una semana del congelamiento del motor: el riesgo de romper relaciones y datos de prueba no se justifica, y el enunciado del curso no exige UUID como llave primaria. PostgreSQL 18 sí tiene `uuidv7()` disponible (lo confirma la prueba `generates version 7 uuids` en `DatabaseConnectionTest.php`), así que una tabla nueva puede usarlo si el equipo lo necesita.
+- Llaves foráneas `<tabla_en_singular>_id`.
 - Las migraciones nuevas guardan las fechas en UTC con `timestampTz` y se muestran en la hora de Costa Rica.
+- **Dinero:** columnas `decimal(12, 2)`, nunca `float` ni `integer`. Es la convención del propio motor (ver "Design principles" en `CLAUDE.md`: *decimal for money*), que se aplica incluso donde el ejemplo del profe usa colones enteros sin decimales. `decimal` evita el error de redondeo binario de `float` y, a diferencia de un entero, deja espacio para centavos si el negocio los necesita más adelante sin otra migración. `products.price` ya sigue esta regla.
 - Índices y llaves foráneas con los nombres que genera Laravel (`<tabla>_<columna>_index`, `<tabla>_<columna>_foreign`).
 - Todo cambio de esquema se hace con una migración nueva; nunca se edita una migración ya mergeada.
+
+## Funciones, procedimientos, triggers, políticas y vistas
+
+Cuando una tabla necesite un objeto de este tipo, se crea en una migración, nunca a mano en la base:
+
+- Siempre con `DB::statement()` o `DB::unprepared()` dentro de `up()`, y con el `down()` que lo elimina (`DROP FUNCTION`, `DROP TRIGGER`, etc.). Sin `down()` no se puede revertir la migración.
+- Prefijo según el tipo de objeto: `fn_` funciones, `sp_` procedimientos, `trg_` triggers, `v_` vistas, `mv_` vistas materializadas. Por ejemplo, un trigger que actualice `updated_at` se llamaría `trg_products_touch_updated_at`.
+- Las reglas de negocio (cálculos, validaciones del dominio) se escriben en PHP, en la capa de dominio del motor — no se duplican en PL/pgSQL. Un objeto de base de datos solo cubre lo que la base necesita resolver por sí misma (por ejemplo, una restricción que el ORM no puede expresar).
+- El rol que crea estos objetos es `libreria_owner` (la misma conexión `pgsql_admin` de las migraciones). `libreria_app` los puede usar (ejecutar una función, ser afectado por un trigger) pero no crearlos ni modificarlos, por el mismo principio de mínimo privilegio que ya rige las tablas.
