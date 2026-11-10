@@ -2,8 +2,8 @@
 
 use App\Models\IntegrationLog;
 use App\Models\WebhookDelivery;
-use Tests\Support\RefreshDatabaseAsOwner;
 use Illuminate\Support\Facades\Bus;
+use Tests\Support\RefreshDatabaseAsOwner;
 
 uses(RefreshDatabaseAsOwner::class);
 

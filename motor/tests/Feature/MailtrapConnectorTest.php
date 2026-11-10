@@ -4,9 +4,9 @@ use App\Conectores\ConnectorInterface;
 use App\Conectores\ConnectorOrder;
 use App\Conectores\MailtrapConnector;
 use App\Models\IntegrationLog;
-use Tests\Support\RefreshDatabaseAsOwner;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use Tests\Support\RefreshDatabaseAsOwner;
 
 uses(RefreshDatabaseAsOwner::class);
 

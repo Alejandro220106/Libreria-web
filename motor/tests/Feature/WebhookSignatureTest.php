@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\IntegrationLog;
-use Tests\Support\RefreshDatabaseAsOwner;
 use Illuminate\Support\Facades\Bus;
+use Tests\Support\RefreshDatabaseAsOwner;
 
 uses(RefreshDatabaseAsOwner::class);
 

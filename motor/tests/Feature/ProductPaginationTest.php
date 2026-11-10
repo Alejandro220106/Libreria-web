@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\Product;
-use Tests\Support\RefreshDatabaseAsOwner;
 use Illuminate\Support\Facades\Http;
+use Tests\Support\RefreshDatabaseAsOwner;
 
 uses(RefreshDatabaseAsOwner::class);
 

@@ -3,10 +3,10 @@
 use App\Models\Product;
 use App\Models\SyncState;
 use Illuminate\Console\Scheduling\Schedule;
-use Tests\Support\RefreshDatabaseAsOwner;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
+use Tests\Support\RefreshDatabaseAsOwner;
 
 uses(RefreshDatabaseAsOwner::class);
 
