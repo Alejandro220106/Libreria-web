@@ -47,7 +47,7 @@ Ejemplo del cuerpo enviado:
 | `codigoHttp` | `200` | El código HTTP de la respuesta (igual a `error_code`), o `null` si no hubo respuesta |
 | `reintentable` | `false` | Según la tabla de errores de la sección 4 |
 | `mensaje` | `"Mensaje enviado"` | `description` de la respuesta de Telegram o, sin respuesta, `"Sin conexión con el proveedor"` |
-| `datos` | `{ "message_id": ..., "chat_id": ..., "date": ... }` tomados de `result` | `{ "error_code": ..., "description": ..., "retry_after": ... }`. `retry_after` solo existe en la 429 |
+| `datos` | `{ "message_id": ..., "chat_id": ..., "date": ... }` tomados de `result` | `{ "error_code": ..., "description": ..., "retry_after": ... }`. `retry_after` se copia de `parameters.retry_after` y solo existe en la 429 |
 
 Respuesta de éxito (formato observado):
 
@@ -69,9 +69,9 @@ Regla del enunciado: son reintentables los errores de conexión, las respuestas 
 |---|---|---|---|
 | 400 | Datos inválidos, por ejemplo `chat_id` vacío | No | Observado el 2026-11-09 (carpeta `errores`) |
 | 401 | Token del bot inválido | No | Observado el 2026-11-09 (carpeta `errores`) |
-| 403 | El usuario bloqueó al bot o nunca le escribió | No | Documentado: <https://core.telegram.org/bots/api#making-requests> (consultado el AAAA-MM-DD) |
-| 429 | Límite de tasa. La respuesta trae `parameters.retry_after` con los segundos que hay que esperar | Sí, después de `retry_after` | Documentado: <https://core.telegram.org/bots/api#responseparameters> (consultado el AAAA-MM-DD) |
-| 5xx | Error interno de Telegram | Sí | Documentado: <https://core.telegram.org/bots/api#making-requests> (consultado el AAAA-MM-DD) |
+| 403 | El usuario bloqueó al bot | No | No observado. La Bot API no documenta este código: solo dice que el bot puede ser bloqueado por el usuario (<https://core.telegram.org/bots/api#update>, consultado el 2026-11-09). Se aplica la regla del enunciado para los 4xx |
+| 429 | Límite de tasa, por ejemplo más de un mensaje por segundo al mismo chat. La respuesta trae `parameters.retry_after` con los segundos que hay que esperar | Sí, después de `retry_after` | Documentado: el 429 en <https://core.telegram.org/bots/faq#my-bot-is-hitting-limits-how-do-i-avoid-this> y `retry_after` en <https://core.telegram.org/bots/api#responseparameters> (consultados el 2026-11-09) |
+| 5xx | Error interno de Telegram | Sí | Regla del enunciado. La Bot API no documenta códigos 5xx (<https://core.telegram.org/bots/api#making-requests>, consultado el 2026-11-09) |
 | Sin respuesta | Error de conexión o timeout | Sí | Regla del enunciado. Lo controla el cliente HTTP, no Telegram |
 
 ## 5. Variables de entorno del módulo
