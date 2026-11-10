@@ -63,3 +63,5 @@ _Link pending._
 ## AI usage statement
 
 The team uses an AI coding assistant (Claude Code) for planning the backlog, drafting documentation, writing and reviewing code. Its configuration lives in `CLAUDE.md` and `.claude/`. Every AI-assisted change is reviewed by a team member through a pull request, verified against the project brief and covered by tests where it touches the engine before merging. Each team member must be able to explain and modify the code they deliver. AI-generated images, if any, will be listed here.
+
+**Applied research 1.** The assistant was used to research the providers' documentation and to draft the documents in `docs/investigacion-1/`. The evidence is the team's own work: the Postman requests, the Newman measurements in `tiempos.md` and the screenshots were run and captured by team members. Every fact taken from the assistant was checked against the provider's official documentation before it went into `comparativa.md`.
