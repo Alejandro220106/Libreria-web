@@ -2,9 +2,9 @@
 
 use App\Models\IntegrationLog;
 use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshDatabaseAsOwner;
 
-uses(RefreshDatabase::class);
+uses(RefreshDatabaseAsOwner::class);
 
 function logAt(string $when): IntegrationLog
 {

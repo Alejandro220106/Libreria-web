@@ -4,11 +4,11 @@ use App\Conectores\ConnectorInterface;
 use App\Conectores\ConnectorOrder;
 use App\Conectores\MailtrapConnector;
 use App\Models\IntegrationLog;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\RefreshDatabaseAsOwner;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 
-uses(RefreshDatabase::class);
+uses(RefreshDatabaseAsOwner::class);
 
 beforeEach(function () {
     config([
