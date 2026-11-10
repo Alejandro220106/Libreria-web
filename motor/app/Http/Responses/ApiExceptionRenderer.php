@@ -38,10 +38,24 @@ final class ApiExceptionRenderer
         return match (true) {
             $status === 403 => ApiError::response(403, 'prohibido', __('api.errors.forbidden'), [], $headers),
             $status === 404 => ApiError::response(404, 'no_encontrado', __('api.errors.not_found'), [], $headers),
-            $status === 429 => ApiError::response(429, 'limite_excedido', __('api.errors.too_many_requests'), [], $headers),
+            $status === 429 => ApiError::response(429, 'limite_excedido', self::tooManyRequestsMessage($headers), [], $headers),
             $status >= 500 => ApiError::response(500, 'error_interno', __('api.errors.internal')),
             default => ApiError::response($status, 'solicitud_invalida', __('api.errors.bad_request'), [], $headers),
         };
+    }
+
+    /**
+     * Uses Retry-After when it holds seconds, so the client knows how long to wait (C3).
+     *
+     * @param  array<string, mixed>  $headers
+     */
+    private static function tooManyRequestsMessage(array $headers): string
+    {
+        $retryAfter = $headers['Retry-After'] ?? null;
+
+        return is_numeric($retryAfter)
+            ? __('api.errors.too_many_requests_seconds', ['seconds' => (int) $retryAfter])
+            : __('api.errors.too_many_requests');
     }
 
     /**

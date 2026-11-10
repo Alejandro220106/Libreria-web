@@ -14,6 +14,7 @@ return [
         'forbidden' => 'No tiene permiso para esta acción.',
         'not_found' => 'El recurso solicitado no existe.',
         'too_many_requests' => 'Demasiadas peticiones. Intente de nuevo más tarde.',
+        'too_many_requests_seconds' => 'Demasiadas peticiones. Intente de nuevo en :seconds segundos.',
         'internal' => 'Ocurrió un error interno.',
         'bad_request' => 'La solicitud no es válida.',
         'order_not_found' => 'No existe un pedido con id :id.',

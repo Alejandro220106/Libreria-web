@@ -14,6 +14,7 @@ return [
         'forbidden' => 'You are not allowed to perform this action.',
         'not_found' => 'The requested resource does not exist.',
         'too_many_requests' => 'Too many requests. Please try again later.',
+        'too_many_requests_seconds' => 'Too many requests. Please try again in :seconds seconds.',
         'internal' => 'An internal error occurred.',
         'bad_request' => 'The request is not valid.',
         'order_not_found' => 'There is no order with id :id.',
