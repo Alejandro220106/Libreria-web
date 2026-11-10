@@ -48,7 +48,7 @@ it('walks every page and saves each product with its custom field', function () 
         ->and($product->stock)->toBe(12)
         ->and($product->categories)->toBe(['Novela'])
         ->and($product->author)->toBe('Carmen Lyra')
-        ->and($product->source_updated_at->toIso8601String())->toBe('2026-10-20T15:30:00+00:00')
+        ->and($product->source_updated_at->toIso8601String())->toBe('2026-10-20T09:30:00-06:00')
         ->and($product->synced_at)->not->toBeNull();
 });
 

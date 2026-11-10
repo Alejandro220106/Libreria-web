@@ -45,7 +45,7 @@ it('stores the start time of a successful full sync', function () {
 
     $this->artisan('tienda:sincronizar-productos')->assertSuccessful();
 
-    expect(lastSync())->toBe('2026-11-01T12:00:00+00:00');
+    expect(lastSync())->toBe('2026-11-01T12:00:00-06:00');
 });
 
 it('asks only for products modified after the last sync', function () {
@@ -54,13 +54,13 @@ it('asks only for products modified after the last sync', function () {
     Http::fake(['tienda.test/*' => Http::response([incrementalProduct(7)], 200, ['X-WP-TotalPages' => '1'])]);
 
     $this->artisan('tienda:sincronizar-productos', ['--incremental' => true])
-        ->expectsOutput('Synced 1 products changed since 2026-10-31T08:30:00+00:00.')
+        ->expectsOutput('Synced 1 products changed since 2026-10-31T08:30:00-06:00.')
         ->assertSuccessful();
 
-    Http::assertSent(fn (Request $request) => $request['modified_after'] === '2026-10-31T08:30:00'
+    Http::assertSent(fn (Request $request) => $request['modified_after'] === '2026-10-31T14:30:00'
         && $request['dates_are_gmt'] === 'true');
     expect(Product::where('woo_id', 7)->exists())->toBeTrue()
-        ->and(lastSync())->toBe('2026-11-01T12:00:00+00:00');
+        ->and(lastSync())->toBe('2026-11-01T12:00:00-06:00');
 });
 
 it('runs a full sync when --incremental has no previous date', function () {
@@ -97,7 +97,7 @@ it('does not move the stored date forward when a run fails', function () {
     expect(fn () => $this->artisan('tienda:sincronizar-productos', ['--incremental' => true])->run())
         ->toThrow(RequestException::class);
 
-    expect(lastSync())->toBe('2026-10-31T08:30:00+00:00');
+    expect(lastSync())->toBe('2026-10-31T08:30:00-06:00');
 });
 
 it('schedules the incremental sync without overlapping runs', function () {

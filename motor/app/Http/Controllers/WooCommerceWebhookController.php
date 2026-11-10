@@ -75,7 +75,7 @@ class WooCommerceWebhookController extends Controller
                     'topic' => mb_substr((string) $request->header('X-WC-Webhook-Topic', 'unknown'), 0, 60),
                 ]);
 
-                return $storeOrder->handle($payload, CarbonImmutable::now('UTC'));
+                return $storeOrder->handle($payload, CarbonImmutable::now());
             });
         } catch (UniqueConstraintViolationException) {
             $this->log($logger, 'order_created_webhook', LogStatus::Duplicate, 200, $request);

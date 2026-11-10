@@ -24,7 +24,8 @@ class IntegrationLogSeeder extends Seeder
             ['outgoing', 'store', 'list_products', 'failure', null, 3, 30050, null, 'Timeout'],
         ];
 
-        $newest = CarbonImmutable::parse('2026-11-10 21:59:00', 'UTC');
+        // Written as UTC and stored in the app's zone, so the instant never changes.
+        $newest = CarbonImmutable::parse('2026-11-10 21:59:00', 'UTC')->setTimezone(config('app.timezone'));
         $total = 24;
         $rows = [];
 

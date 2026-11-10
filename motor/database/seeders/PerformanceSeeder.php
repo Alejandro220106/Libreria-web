@@ -35,7 +35,7 @@ class PerformanceSeeder extends Seeder
 
     public function run(): void
     {
-        $now = now()->utc();
+        $now = now();
 
         $this->insert('products', self::PRODUCTS, fn (int $i) => Product::factory()->raw([
             'woo_id' => self::PRODUCT_ID_OFFSET + $i,
