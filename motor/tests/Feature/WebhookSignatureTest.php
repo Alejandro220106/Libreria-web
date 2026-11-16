@@ -17,6 +17,7 @@ function signed(string $body, string $secret = 'whsec_test'): array
     return [
         'X-WC-Webhook-Signature' => base64_encode(hash_hmac('sha256', $body, $secret, true)),
         'X-WC-Webhook-Delivery-ID' => 'delivery-1',
+        'X-WC-Webhook-Topic' => 'order.created',
         'Content-Type' => 'application/json',
     ];
 }

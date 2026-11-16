@@ -2,23 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Application\Orders\StoreOrder;
 use App\Application\Ports\IntegrationLogger;
+use App\Application\Webhooks\WebhookHandler;
 use App\Domain\IntegrationLog\LogDirection;
 use App\Domain\IntegrationLog\LogStatus;
 use App\Domain\IntegrationLog\LogSystem;
 use App\Domain\Webhook\SignatureVerifier;
 use App\Http\Responses\ApiError;
-use App\Jobs\ProcessOrder;
 use App\Models\WebhookDelivery;
-use Carbon\CarbonImmutable;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class WooCommerceWebhookController extends Controller
 {
-    public function __invoke(Request $request, SignatureVerifier $verifier, IntegrationLogger $logger, StoreOrder $storeOrder)
+    public function __invoke(Request $request, SignatureVerifier $verifier, IntegrationLogger $logger)
     {
         // WooCommerce sends this ping when a webhook is saved and does not sign it. It carries
         // no order data and changes nothing, so it is answered before the signature check.
@@ -36,7 +34,7 @@ class WooCommerceWebhookController extends Controller
         );
 
         if (! $isValid) {
-            $this->log($logger, 'order_created_webhook', LogStatus::InvalidSignature, 401, $request, 'The signature does not match');
+            $this->log($logger, 'webhook', LogStatus::InvalidSignature, 401, $request, 'The signature does not match');
 
             return ApiError::response(401, 'firma_invalida', __('api.errors.invalid_signature'));
         }
@@ -64,30 +62,45 @@ class WooCommerceWebhookController extends Controller
             ]);
         }
 
-        try {
-            // One transaction: the delivery is marked processed only if the order was saved.
-            // Otherwise a failure would leave the delivery recorded and WooCommerce's retry
-            // would be taken for a duplicate, losing the order.
-            $order = DB::transaction(function () use ($deliveryId, $request, $payload, $storeOrder) {
-                // The unique index on delivery_id decides, so two concurrent retries cannot both pass.
-                WebhookDelivery::create([
-                    'delivery_id' => $deliveryId,
-                    'topic' => mb_substr((string) $request->header('X-WC-Webhook-Topic', 'unknown'), 0, 60),
-                ]);
+        $topic = (string) $request->header('X-WC-Webhook-Topic', '');
+        $handler = $this->handlerFor($topic);
 
-                return $storeOrder->handle($payload, CarbonImmutable::now());
-            });
-        } catch (UniqueConstraintViolationException) {
-            $this->log($logger, 'order_created_webhook', LogStatus::Duplicate, 200, $request);
+        if ($handler === null) {
+            // A 200 keeps WooCommerce from pausing the webhook; the log shows what arrived.
+            $this->log($logger, 'webhook_unhandled_topic', LogStatus::Success, 200, $request, "No handler for topic [{$topic}]");
 
             return response()->json([]);
         }
 
-        // The connector and the AI are slow and can fail: they run after the response is sent,
-        // so WooCommerce gets its 200 at once and a failure there never changes it.
-        ProcessOrder::dispatchAfterResponse($order->id);
+        try {
+            // One transaction: the delivery is marked processed only if the handler succeeded.
+            // Otherwise a failure would leave the delivery recorded and WooCommerce's retry
+            // would be taken for a duplicate, losing the order.
+            DB::transaction(function () use ($deliveryId, $topic, $payload, $handler) {
+                // The unique index on delivery_id decides, so two concurrent retries cannot both pass.
+                WebhookDelivery::create([
+                    'delivery_id' => $deliveryId,
+                    'topic' => mb_substr($topic, 0, 60),
+                ]);
+
+                $handler->handle($payload);
+            });
+        } catch (UniqueConstraintViolationException) {
+            $this->log($logger, $handler->operation(), LogStatus::Duplicate, 200, $request);
+
+            return response()->json([]);
+        }
 
         return response()->json([]);
+    }
+
+    /** The topic map lives in config/webhooks.php; the controller never names a topic. */
+    private function handlerFor(string $topic): ?WebhookHandler
+    {
+        // Read the whole map: topics contain dots, which config() would take as nesting.
+        $class = config('webhooks.handlers', [])[$topic] ?? null;
+
+        return is_string($class) ? app($class) : null;
     }
 
     private function deliveryId(Request $request): ?string
