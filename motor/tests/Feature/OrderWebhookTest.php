@@ -144,7 +144,8 @@ it('still answers 200 when the job itself throws, and records the failure', func
 
     sendOrder(orderPayload())->assertOk();
 
-    $log = IntegrationLog::sole();
+    // The address step also runs and logs its own call, so only this step's entry is read.
+    $log = IntegrationLog::where('operation', 'process_order')->sole();
     expect(Order::count())->toBe(1)
         ->and($log->operation)->toBe('process_order')
         ->and($log->status->value)->toBe('failure');

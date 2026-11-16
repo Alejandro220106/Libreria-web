@@ -12,6 +12,9 @@ return [
     // Seconds to wait for the model; a 7B model on a laptop can be slow.
     'timeout' => (int) env('AI_TIMEOUT', 120),
 
+    // Below this confidence the address is not saved: it stays pending review (brief 6.8.3).
+    'min_confidence' => (float) env('AI_MIN_CONFIDENCE', 0.85),
+
     // Published schema the model output must match before it is used.
     'schema_path' => base_path('direccion-normalizada.schema.json'),
 
