@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Application\Ports\AddressNormalizer;
 use App\Application\Ports\IntegrationLogger;
 use App\Conectores\ConnectorInterface;
 use App\Application\Ports\StoreClient;
+use App\Infrastructure\Ai\OllamaAddressNormalizer;
 use App\Infrastructure\Logging\DatabaseIntegrationLogger;
 use App\Infrastructure\Store\WooCommerceClient;
 use Carbon\CarbonImmutable;
@@ -30,6 +32,12 @@ class AppServiceProvider extends ServiceProvider
                 ?? throw new InvalidArgumentException("Unknown connector provider [{$name}].");
 
             return $app->make($class);
+        });
+
+        // The provider comes from AI_PROVIDER, so a new one touches no business code.
+        $this->app->bind(AddressNormalizer::class, fn ($app) => match (config('ai.provider')) {
+            'ollama' => $app->make(OllamaAddressNormalizer::class),
+            default => throw new InvalidArgumentException('Unknown AI_PROVIDER.'),
         });
     }
 
