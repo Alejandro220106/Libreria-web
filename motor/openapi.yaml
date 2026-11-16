@@ -51,6 +51,8 @@ tags:
     description: Pedidos recibidos por webhook (contrato C5).
   - name: Bitácora
     description: Registro de cada intercambio con otros sistemas (contrato C6).
+  - name: Webhooks
+    description: Ruta adicional del equipo, fuera del contrato obligatorio. La llama WooCommerce, no los clientes de la API.
 paths:
   /productos:
     get:
@@ -193,6 +195,75 @@ paths:
           $ref: '#/components/responses/ErrorValidacion'
         '429':
           $ref: '#/components/responses/LimiteExcedido'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+  /webhooks/woocommerce:
+    post:
+      tags: [Webhooks]
+      operationId: recibirWebhookWooCommerce
+      summary: Recibe los webhooks de pedidos de la tienda
+      description: |
+        Ruta adicional del equipo (apartado 6.5), no forma parte del contrato obligatorio.
+        No usa token: la autenticidad se comprueba con la firma HMAC-SHA256 del cuerpo.
+        Responde 200 de inmediato; el conector y la normalización de la dirección
+        corren después de la respuesta. Una entrega repetida (mismo
+        X-WC-Webhook-Delivery-ID) responde 200 y no se procesa de nuevo. Un tema
+        sin manejador responde 200 y queda en la bitácora.
+      security: []
+      parameters:
+        - name: X-WC-Webhook-Signature
+          in: header
+          required: true
+          description: HMAC-SHA256 del cuerpo exacto con el secreto del webhook, en Base64.
+          schema:
+            type: string
+        - name: X-WC-Webhook-Delivery-ID
+          in: header
+          required: true
+          description: Identificador de la entrega; se usa para no procesarla dos veces.
+          schema:
+            type: string
+            maxLength: 100
+        - name: X-WC-Webhook-Topic
+          in: header
+          required: true
+          description: Tema del evento.
+          schema:
+            type: string
+            examples: [order.created, order.updated]
+      requestBody:
+        required: true
+        description: Pedido tal como lo envía la API REST v3 de WooCommerce. El motor solo exige un id entero positivo.
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id]
+              properties:
+                id:
+                  type: integer
+                  minimum: 1
+      responses:
+        '200':
+          description: Entrega aceptada, repetida, ping o tema sin manejador.
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 0
+        '401':
+          description: |
+            La firma falta o no coincide. Tiene la forma de Error, pero con el
+            código firma_invalida, que no está en la lista del contrato C3.
+          content:
+            application/json:
+              example:
+                error:
+                  codigo: firma_invalida
+                  mensaje: La firma del webhook no es válida.
+                  detalles: []
+        '422':
+          $ref: '#/components/responses/ErrorValidacion'
         '500':
           $ref: '#/components/responses/ErrorInterno'
 components:
