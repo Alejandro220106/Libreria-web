@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\IntegrationLog;
+use App\Models\Order;
+use App\Models\WebhookDelivery;
 use Illuminate\Support\Facades\Bus;
 use Tests\Support\RefreshDatabaseAsOwner;
 
@@ -31,7 +33,7 @@ it('accepts a delivery signed with the webhook secret', function () {
     expect(IntegrationLog::count())->toBe(0);
 });
 
-it('rejects a wrong signature with 401 and logs invalid_signature', function () {
+it('rejects a wrong signature with 401, saves nothing and logs invalid_signature', function () {
     $body = '{"id":1001}';
 
     $this->call('POST', '/api/v1/webhooks/woocommerce', [], [], [], headersToServer(signed($body, 'other_secret')), $body)
@@ -42,7 +44,11 @@ it('rejects a wrong signature with 401 and logs invalid_signature', function () 
     expect($log->status->value)->toBe('invalid_signature')
         ->and($log->http_code)->toBe(401)
         ->and($log->correlation_id)->toBe('delivery-1')
-        ->and(json_encode($log->toArray()))->not->toContain('whsec_test');
+        ->and(json_encode($log->toArray()))->not->toContain('whsec_test')
+        ->and(Order::count())->toBe(0)
+        ->and(WebhookDelivery::count())->toBe(0);
+
+    Bus::assertNothingDispatched();
 });
 
 it('rejects a delivery without the signature header', function () {
