@@ -29,13 +29,7 @@ postman/          Postman collections and example environments
 
 ## Running the engine
 
-The engine is a Laravel 13 project on PHP 8.3 in `motor/`. Requirements: PHP 8.3 with the `pdo_pgsql` extension, Composer and PostgreSQL 18 with the engine's two roles created once per machine (see [docs/base-de-datos.md](docs/base-de-datos.md#preparar-una-máquina-nueva)):
-
-```bash
-psql -U postgres -v owner_password='...' -v app_password='...' -f database/roles.sql
-```
-
-From the `motor/` folder run these steps, and no others. After `cp`, put the two role passwords in `DB_PASSWORD` and `DB_ADMIN_PASSWORD` in `.env`:
+The engine is a Laravel 13 project on PHP 8.3 in `motor/`. Requirements: PHP 8.3 (with the `pdo_pgsql` extension), Composer and PostgreSQL 18. From the `motor/` folder run these steps, and no others. After `cp`, put the password of your local `postgres` user in `DB_PASSWORD` in `.env`:
 
 ```bash
 composer install
@@ -46,6 +40,8 @@ php artisan serve
 ```
 
 - `.env.example` lists every variable the engine needs. Secrets are left empty: fill in your own WooCommerce keys, webhook secret and connector token in `.env`. Never commit `.env`.
+- Database: put the password of your local `postgres` user in `DB_PASSWORD`. `php artisan migrate --seed` offers to create the `libreria_motor` database if it does not exist, and `php artisan test` creates `libreria_motor_testing` on its own. The optional least-privilege setup with two roles is described in [docs/base-de-datos.md](docs/base-de-datos.md).
+- The instructor's Newman collection (`motor/motor-contrato.postman_collection.json`) expects `base_url` to include the API prefix, for example `newman run motor-contrato.postman_collection.json --env-var base_url=http://127.0.0.1:8000/api/v1`.
 - The engine is not deployed in Deliverable 2. To receive the store's webhooks on a local machine, expose it with a tunnel (Cloudflare Tunnel or ngrok) and point the two WooCommerce webhooks (order created, order updated) to `POST /api/v1/webhooks/woocommerce`.
 - Tests run offline and without real keys:
 

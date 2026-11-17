@@ -8,6 +8,14 @@ use Tests\Support\RefreshDatabaseAsOwner;
 
 uses(RefreshDatabaseAsOwner::class);
 
+// These checks only make sense in the least-privilege mode (two roles). In single-user
+// mode, the default of a fresh clone, the app and the schema owner are the same user.
+beforeEach(function () {
+    if (! env('DB_ADMIN_USERNAME')) {
+        $this->markTestSkipped('Single-user mode: DB_ADMIN_USERNAME is empty.');
+    }
+});
+
 it('connects with a role that has no elevated attributes', function () {
     $role = DB::selectOne('select rolsuper, rolbypassrls, rolcreatedb, rolcreaterole from pg_roles where rolname = current_user');
 
