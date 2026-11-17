@@ -32,8 +32,9 @@ class ProcessOrder implements ShouldQueue
     {
         // Whatever happens here, the webhook already answered 200. Each step has its own
         // try/catch, so a failure in one does not stop the other. Failures are recorded, never thrown.
-        $this->attempt(fn () => $connector->handle($this->orderId), $logger);
+        // The address goes first, so the connector's message can include the normalized location.
         $this->attempt(fn () => $address->handle($this->orderId), $logger);
+        $this->attempt(fn () => $connector->handle($this->orderId), $logger);
     }
 
     private function attempt(callable $step, IntegrationLogger $logger): void
