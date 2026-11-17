@@ -24,7 +24,7 @@ return [
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'libreria_motor'),
-            'username' => env('DB_USERNAME', 'libreria_app'),
+            'username' => env('DB_USERNAME', 'postgres'),
             'password' => env('DB_PASSWORD', ''),
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
@@ -36,13 +36,15 @@ return [
         ],
 
         // Schema owner: only for `php artisan migrate --database=pgsql_admin`, never for requests.
+        // With DB_ADMIN_USERNAME empty (single-user mode) it is the same user as the app, so a
+        // fresh clone runs `php artisan migrate --seed` with no extra step (brief 6.2.2).
         'pgsql_admin' => [
             'driver' => 'pgsql',
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'libreria_motor'),
-            'username' => env('DB_ADMIN_USERNAME', 'libreria_owner'),
-            'password' => env('DB_ADMIN_PASSWORD', ''),
+            'username' => env('DB_ADMIN_USERNAME') ?: env('DB_USERNAME', 'postgres'),
+            'password' => env('DB_ADMIN_USERNAME') ? env('DB_ADMIN_PASSWORD', '') : env('DB_PASSWORD', ''),
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
