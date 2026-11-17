@@ -50,7 +50,17 @@ class RunConnectorAction
         try {
             return $this->connector->execute(
                 // The store's order number, the one the customer sees; not the engine's own id.
-                new ConnectorOrder($order->woo_id, (string) $order->total, $order->currency),
+                new ConnectorOrder(
+                    orderId: $order->woo_id,
+                    total: (string) $order->total,
+                    currency: $order->currency,
+                    lines: $order->lines ?? [],
+                    orderedAt: $order->ordered_at?->toIso8601String(),
+                    status: $order->status,
+                    addressText: $order->address_text,
+                    address: $order->address_normalized,
+                    addressStatus: $order->address_status,
+                ),
             );
         } catch (Throwable $e) {
             // The connector should report failures in its result; this is the safety net.

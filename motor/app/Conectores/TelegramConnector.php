@@ -67,12 +67,90 @@ class TelegramConnector implements ConnectorInterface
         return ConnectorResult::success($messageId === null ? null : (string) $messageId);
     }
 
-    /** Order number and total only: no customer personal data leaves the engine (contract C8). */
+    /** Telegram rejects a text longer than 4096 characters. */
+    private const MAX_LENGTH = 4096;
+
+    /**
+     * A virtual invoice of the order: products, amounts, date and shipping location.
+     * Never the customer's name, email or phone (contract C8): the engine does not keep them.
+     */
     private function message(ConnectorOrder $order): string
     {
-        $total = number_format((float) $order->total, 2, '.', '');
+        $lines = [
+            'LibroLocura · Factura virtual (ambiente de pruebas)',
+            "Pedido: #{$order->orderId}",
+        ];
 
-        return "Gracias por su compra.\nPedido: #{$order->orderId}\nTotal: {$total} {$order->currency}";
+        if ($order->orderedAt !== null) {
+            $lines[] = 'Fecha: '.date('d/m/Y H:i', (int) strtotime($order->orderedAt));
+        }
+
+        if ($order->status !== '') {
+            $lines[] = 'Estado: '.$order->status;
+        }
+
+        if ($order->lines !== []) {
+            $lines[] = '';
+            $lines[] = 'Detalle:';
+            $sum = 0.0;
+
+            foreach ($order->lines as $line) {
+                $sum += (float) $line['subtotal'];
+                $lines[] = "• {$line['quantity']} x {$line['name']}"
+                    .($line['sku'] ? " ({$line['sku']})" : '')
+                    .' — '.$this->money($line['unit_price'], $order->currency)
+                    .' c/u = '.$this->money($line['subtotal'], $order->currency);
+            }
+
+            $lines[] = '';
+            $lines[] = 'Subtotal: '.$this->money($sum, $order->currency);
+
+            // The engine keeps only the grand total; the difference is shipping and other charges.
+            $extra = (float) $order->total - $sum;
+            if ($extra > 0) {
+                $lines[] = 'Envío y otros cargos: '.$this->money($extra, $order->currency);
+            }
+        }
+
+        $lines[] = 'Total: '.$this->money($order->total, $order->currency);
+        $lines = [...$lines, '', ...$this->shipping($order)];
+
+        return mb_substr(implode("\n", $lines), 0, self::MAX_LENGTH);
+    }
+
+    /** @return list<string> */
+    private function shipping(ConnectorOrder $order): array
+    {
+        $lines = ['Envío:'];
+
+        if ($order->address !== null) {
+            $lines[] = "Provincia: {$order->address['provincia']}";
+            $lines[] = "Cantón: {$order->address['canton']}";
+            $lines[] = "Distrito: {$order->address['distrito']}";
+
+            if (($order->address['otras_senas'] ?? '') !== '') {
+                $lines[] = "Otras señas: {$order->address['otras_senas']}";
+            }
+
+            return $lines;
+        }
+
+        if ($order->addressText !== '') {
+            $lines[] = "Dirección: {$order->addressText}";
+        }
+
+        if ($order->addressStatus === 'pending_review') {
+            $lines[] = 'La dirección quedó pendiente de revisión.';
+        }
+
+        return $lines;
+    }
+
+    private function money(mixed $amount, string $currency): string
+    {
+        $formatted = number_format((float) $amount, 2, ',', '.');
+
+        return $currency === 'CRC' ? "₡{$formatted}" : "{$formatted} {$currency}";
     }
 
     private function log(ConnectorOrder $order, float $started, int $attempts, LogStatus $status, ?int $code, ?string $error = null): void
