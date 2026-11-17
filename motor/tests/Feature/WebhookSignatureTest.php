@@ -30,7 +30,11 @@ it('accepts a delivery signed with the webhook secret', function () {
     $this->call('POST', '/api/v1/webhooks/woocommerce', [], [], [], headersToServer(signed($body)), $body)
         ->assertOk();
 
-    expect(IntegrationLog::count())->toBe(0);
+    $log = IntegrationLog::sole();
+    expect($log->direction->value)->toBe('incoming')
+        ->and($log->operation)->toBe('order_created_webhook')
+        ->and($log->status->value)->toBe('success')
+        ->and($log->http_code)->toBe(200);
 });
 
 it('rejects a wrong signature with 401, saves nothing and logs invalid_signature', function () {

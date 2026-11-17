@@ -35,7 +35,7 @@ return [
             'timezone' => env('APP_TIMEZONE', 'America/Costa_Rica'),
         ],
 
-        // Schema owner: only for `php artisan migrate --database=pgsql_admin`, never for requests.
+        // Schema owner: only for the migrate commands (AppServiceProvider switches to it), never for requests.
         // With DB_ADMIN_USERNAME empty (single-user mode) it is the same user as the app, so a
         // fresh clone runs `php artisan migrate --seed` with no extra step (brief 6.2.2).
         'pgsql_admin' => [

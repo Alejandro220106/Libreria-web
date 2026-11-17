@@ -53,5 +53,5 @@ it('logs a duplicate with the operation of its topic', function () {
     deliverTopic('order.updated', ['id' => 3001], 'delivery-1')->assertOk();
     deliverTopic('order.updated', ['id' => 3001], 'delivery-1')->assertOk();
 
-    expect(IntegrationLog::sole()->operation)->toBe('order_updated_webhook');
+    expect(IntegrationLog::where('status', 'duplicate')->sole()->operation)->toBe('order_updated_webhook');
 });
