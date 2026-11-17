@@ -30,10 +30,10 @@ La primera migración (`0000_00_00_000000_grant_privileges_to_the_application_ro
    ```
 
 3. En `motor/.env`, poner la contraseña de `libreria_app` en `DB_PASSWORD` y la de `libreria_owner` en `DB_ADMIN_PASSWORD`.
-4. Crear las tablas como dueño: `php artisan migrate --database=pgsql_admin`.
+4. Crear las tablas y los datos de prueba: `php artisan migrate --seed`.
 5. Comprobar: `php artisan test` (las pruebas migran como dueño y consultan como aplicación).
 
-Las migraciones **siempre** se corren con `--database=pgsql_admin`; sin esa opción fallan, porque `libreria_app` no puede crear tablas.
+Las migraciones **siempre** corren como dueño, porque `libreria_app` no puede crear tablas. No hace falta escribir `--database=pgsql_admin`: `AppServiceProvider` cambia a esa conexión por sí solo en los comandos `migrate*` de consola. Si se pasa `--database`, se respeta. Las peticiones a la API siguen usando `libreria_app`.
 
 ## Convenciones del esquema
 
