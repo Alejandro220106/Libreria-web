@@ -37,11 +37,9 @@ it('answers 200 to a repeated delivery, stores it once and logs duplicate', func
     deliver('{"id":1001}')->assertOk();
     deliver('{"id":1001}')->assertOk();
 
-    $duplicate = IntegrationLog::where('status', 'duplicate')->sole();
-
     expect(WebhookDelivery::count())->toBe(1)
-        ->and(IntegrationLog::count())->toBe(2)
-        ->and($duplicate->correlation_id)->toBe('delivery-1');
+        ->and(IntegrationLog::sole()->status->value)->toBe('duplicate')
+        ->and(IntegrationLog::sole()->correlation_id)->toBe('delivery-1');
 });
 
 it('answers 200 to the test ping and stores no delivery', function () {

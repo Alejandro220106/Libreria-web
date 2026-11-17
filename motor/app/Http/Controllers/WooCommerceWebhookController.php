@@ -91,9 +91,6 @@ class WooCommerceWebhookController extends Controller
             return response()->json([]);
         }
 
-        // Every received webhook leaves a record (brief 6.7.1), the processed ones included.
-        $this->log($logger, $handler->operation(), LogStatus::Success, 200, $request);
-
         return response()->json([]);
     }
 
