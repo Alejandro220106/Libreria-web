@@ -35,7 +35,7 @@ return [
             'timezone' => env('APP_TIMEZONE', 'America/Costa_Rica'),
         ],
 
-        // Schema owner: only for `php artisan migrate --database=pgsql_admin`, never for requests.
+        // Schema owner: only for the migrate commands (AppServiceProvider switches to it), never for requests.
         'pgsql_admin' => [
             'driver' => 'pgsql',
             'host' => env('DB_HOST', '127.0.0.1'),

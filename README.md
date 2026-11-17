@@ -29,7 +29,13 @@ postman/          Postman collections and example environments
 
 ## Running the engine
 
-The engine is a Laravel 13 project on PHP 8.3 in `motor/`. Requirements: PHP 8.3 and Composer. From the `motor/` folder run these steps, and no others:
+The engine is a Laravel 13 project on PHP 8.3 in `motor/`. Requirements: PHP 8.3 with the `pdo_pgsql` extension, Composer and PostgreSQL 18 with the engine's two roles created once per machine (see [docs/base-de-datos.md](docs/base-de-datos.md#preparar-una-máquina-nueva)):
+
+```bash
+psql -U postgres -v owner_password='...' -v app_password='...' -f database/roles.sql
+```
+
+From the `motor/` folder run these steps, and no others. After `cp`, put the two role passwords in `DB_PASSWORD` and `DB_ADMIN_PASSWORD` in `.env`:
 
 ```bash
 composer install
