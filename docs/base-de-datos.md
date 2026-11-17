@@ -20,7 +20,20 @@ Si un error o una inyección llega a la base por la API, el rol de la aplicació
 
 La primera migración (`0000_00_00_000000_grant_privileges_to_the_application_role`) le da a `libreria_app` permisos sobre las tablas existentes y, con `ALTER DEFAULT PRIVILEGES`, sobre todas las que el dueño cree después, sin pasos manuales.
 
-## Preparar una máquina nueva
+## Modo de un solo usuario (el de una copia nueva)
+
+Es el modo por defecto de `.env.example`, para que el motor arranque con los cinco pasos del enunciado (apartado 6.2.2) y sin pasos manuales:
+
+1. Tener PostgreSQL 18 instalado y las extensiones `pdo_pgsql` y `pgsql` habilitadas en el `php.ini`.
+2. En `motor/.env`, poner la contraseña del usuario local `postgres` en `DB_PASSWORD` y dejar `DB_ADMIN_USERNAME` vacío.
+3. `php artisan migrate --seed` ofrece crear la base `libreria_motor` si no existe. `php artisan test` crea `libreria_motor_testing` por su cuenta.
+
+En este modo la aplicación y el dueño del esquema son el mismo usuario, así que las cuatro pruebas de `DatabaseRolesTest.php` se saltan. Es un modo para desarrollo y evaluación; el de dos roles de abajo es el recomendado para un servidor.
+
+## Modo de mínimo privilegio (dos roles)
+
+Se activa al llenar `DB_ADMIN_USERNAME` y `DB_ADMIN_PASSWORD`.
+
 
 1. Instalar PostgreSQL 18 y habilitar las extensiones `pdo_pgsql` y `pgsql` en el `php.ini`.
 2. Crear los roles y las bases, desde la carpeta `motor/`, pasando las contraseñas como variables (nunca se escriben en el repositorio):
@@ -33,7 +46,7 @@ La primera migración (`0000_00_00_000000_grant_privileges_to_the_application_ro
 4. Crear las tablas como dueño: `php artisan migrate --database=pgsql_admin`.
 5. Comprobar: `php artisan test` (las pruebas migran como dueño y consultan como aplicación).
 
-Las migraciones **siempre** se corren con `--database=pgsql_admin`; sin esa opción fallan, porque `libreria_app` no puede crear tablas.
+En este modo las migraciones **siempre** se corren con `--database=pgsql_admin`; sin esa opción fallan, porque `libreria_app` no puede crear tablas.
 
 ## Convenciones del esquema
 
