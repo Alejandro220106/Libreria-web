@@ -3,8 +3,8 @@
 use App\Application\Orders\NormalizeOrderAddress;
 use App\Models\Order;
 use Illuminate\Support\Facades\Http;
-use Tests\TestCase;
 use Tests\Support\RefreshDatabaseAsOwner;
+use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabaseAsOwner::class);
 
