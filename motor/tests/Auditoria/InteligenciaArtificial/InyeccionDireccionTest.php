@@ -1,8 +1,8 @@
 <?php
 
-use App\Application\Orders\NormalizeOrderAddress;
-use App\Models\Order;
 use Illuminate\Support\Facades\Http;
+use Src\Orders\Application\UseCases\NormalizeOrderAddress;
+use Src\Orders\Infrastructure\Persistence\Models\Order;
 use Tests\Support\RefreshDatabaseAsOwner;
 use Tests\TestCase;
 
