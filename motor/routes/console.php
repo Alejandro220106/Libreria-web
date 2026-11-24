@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\IntegrationLog;
+use Src\IntegrationLog\Infrastructure\Persistence\Models\IntegrationLog;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;

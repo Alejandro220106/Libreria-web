@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Product;
-use App\Models\SyncState;
+use Src\Catalog\Infrastructure\Persistence\Models\Product;
+use Src\Catalog\Infrastructure\Persistence\Models\SyncState;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Client\RequestException;

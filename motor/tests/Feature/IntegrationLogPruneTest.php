@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\IntegrationLog;
+use Src\IntegrationLog\Infrastructure\Persistence\Models\IntegrationLog;
 use Illuminate\Console\Scheduling\Schedule;
 use Tests\Support\RefreshDatabaseAsOwner;
 

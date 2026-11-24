@@ -2,10 +2,10 @@
 
 namespace App\Conectores;
 
-use App\Application\Ports\IntegrationLogger;
-use App\Domain\IntegrationLog\LogDirection;
-use App\Domain\IntegrationLog\LogStatus;
-use App\Domain\IntegrationLog\LogSystem;
+use Src\IntegrationLog\Application\Contracts\IntegrationLogger;
+use Src\IntegrationLog\Domain\Enums\LogDirection;
+use Src\IntegrationLog\Domain\Enums\LogStatus;
+use Src\IntegrationLog\Domain\Enums\LogSystem;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;

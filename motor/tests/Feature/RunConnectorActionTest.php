@@ -1,11 +1,11 @@
 <?php
 
-use App\Application\Orders\RunConnectorAction;
+use Src\Orders\Application\UseCases\RunConnectorAction;
 use App\Conectores\ConnectorInterface;
 use App\Conectores\ConnectorOrder;
 use App\Conectores\ConnectorResult;
-use App\Models\IntegrationLog;
-use App\Models\Order;
+use Src\IntegrationLog\Infrastructure\Persistence\Models\IntegrationLog;
+use Src\Orders\Infrastructure\Persistence\Models\Order;
 use Illuminate\Support\Facades\Http;
 use Tests\Support\RefreshDatabaseAsOwner;
 

@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\IntegrationLog;
-use App\Models\Order;
-use App\Models\Product;
+use Src\IntegrationLog\Infrastructure\Persistence\Models\IntegrationLog;
+use Src\Orders\Infrastructure\Persistence\Models\Order;
+use Src\Catalog\Infrastructure\Persistence\Models\Product;
 use BackedEnum;
 use DateTimeInterface;
 use Illuminate\Database\Seeder;
