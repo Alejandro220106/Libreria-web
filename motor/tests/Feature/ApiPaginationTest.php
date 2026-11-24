@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Requests\ListRequest;
-use App\Http\Responses\PaginatedResponse;
+use Src\Shared\Infrastructure\Http\Requests\ListRequest;
+use Src\Shared\Infrastructure\Http\Responses\PaginatedResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Route;
 

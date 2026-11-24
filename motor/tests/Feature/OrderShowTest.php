@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Order;
+use Src\Orders\Infrastructure\Persistence\Models\Order;
 use Database\Seeders\OrderSeeder;
 use Tests\Support\RefreshDatabaseAsOwner;
 

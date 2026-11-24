@@ -2,10 +2,10 @@
 
 namespace Database\Factories;
 
-use App\Domain\IntegrationLog\LogDirection;
-use App\Domain\IntegrationLog\LogStatus;
-use App\Domain\IntegrationLog\LogSystem;
-use App\Models\IntegrationLog;
+use Src\IntegrationLog\Domain\Enums\LogDirection;
+use Src\IntegrationLog\Domain\Enums\LogStatus;
+use Src\IntegrationLog\Domain\Enums\LogSystem;
+use Src\IntegrationLog\Infrastructure\Persistence\Models\IntegrationLog;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

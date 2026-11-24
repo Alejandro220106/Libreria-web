@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Product;
+use Src\Catalog\Infrastructure\Persistence\Models\Product;
 use Illuminate\Support\Facades\Http;
 use Tests\Support\RefreshDatabaseAsOwner;
 

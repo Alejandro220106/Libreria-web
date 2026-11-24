@@ -1,9 +1,9 @@
 <?php
 
-use App\Application\Ports\AddressNormalizer;
-use App\Domain\Address\InvalidAddressResponse;
-use App\Infrastructure\Ai\OllamaAddressNormalizer;
-use App\Models\IntegrationLog;
+use Src\Orders\Application\Contracts\AddressNormalizer;
+use Src\Orders\Domain\Exceptions\InvalidAddressResponse;
+use Src\Orders\Infrastructure\Ai\OllamaAddressNormalizer;
+use Src\IntegrationLog\Infrastructure\Persistence\Models\IntegrationLog;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Tests\Support\RefreshDatabaseAsOwner;

@@ -1,5 +1,5 @@
 <?php
-use App\Http\Responses\ApiExceptionRenderer;
+use Src\Shared\Infrastructure\Http\Responses\ApiExceptionRenderer;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;

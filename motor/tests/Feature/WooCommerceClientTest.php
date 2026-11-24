@@ -1,8 +1,8 @@
 <?php
 
-use App\Application\Ports\StoreClient;
-use App\Infrastructure\Store\WooCommerceClient;
-use App\Models\IntegrationLog;
+use Src\Catalog\Application\Contracts\StoreClient;
+use Src\Catalog\Infrastructure\WooCommerce\WooCommerceClient;
+use Src\IntegrationLog\Infrastructure\Persistence\Models\IntegrationLog;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;

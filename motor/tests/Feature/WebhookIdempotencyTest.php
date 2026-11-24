@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\IntegrationLog;
-use App\Models\WebhookDelivery;
+use Src\IntegrationLog\Infrastructure\Persistence\Models\IntegrationLog;
+use Src\Webhooks\Infrastructure\Persistence\Models\WebhookDelivery;
 use Illuminate\Support\Facades\Bus;
 use Tests\Support\RefreshDatabaseAsOwner;
 

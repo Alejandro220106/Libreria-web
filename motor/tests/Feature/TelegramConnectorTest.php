@@ -3,7 +3,7 @@
 use App\Conectores\ConnectorInterface;
 use App\Conectores\ConnectorOrder;
 use App\Conectores\TelegramConnector;
-use App\Models\IntegrationLog;
+use Src\IntegrationLog\Infrastructure\Persistence\Models\IntegrationLog;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Tests\Support\RefreshDatabaseAsOwner;

@@ -2,47 +2,19 @@
 
 namespace App\Providers;
 
-use App\Application\Ports\AddressNormalizer;
-use App\Application\Ports\IntegrationLogger;
-use App\Application\Ports\StoreClient;
-use App\Conectores\ConnectorInterface;
-use App\Infrastructure\Ai\OllamaAddressNormalizer;
-use App\Infrastructure\Logging\DatabaseIntegrationLogger;
-use App\Infrastructure\Store\WooCommerceClient;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
-use InvalidArgumentException;
 
+/**
+ * Settings for the whole engine. Each module connects its own ports in its
+ * service provider (src/<Module>/Infrastructure/<Module>ServiceProvider.php).
+ */
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
-    public function register(): void
-    {
-        $this->app->bind(StoreClient::class, WooCommerceClient::class);
-        $this->app->bind(IntegrationLogger::class, DatabaseIntegrationLogger::class);
-
-        // The provider comes from CONECTOR_PROVEEDOR; nothing else names a concrete connector.
-        $this->app->bind(ConnectorInterface::class, function ($app) {
-            $name = (string) config('connector.provider');
-            $class = config("connector.providers.{$name}")
-                ?? throw new InvalidArgumentException("Unknown connector provider [{$name}].");
-
-            return $app->make($class);
-        });
-
-        // The provider comes from AI_PROVIDER, so a new one touches no business code.
-        $this->app->bind(AddressNormalizer::class, fn ($app) => match (config('ai.provider')) {
-            'ollama' => $app->make(OllamaAddressNormalizer::class),
-            default => throw new InvalidArgumentException('Unknown AI_PROVIDER.'),
-        });
-    }
-
     /**
      * Bootstrap any application services.
      */

@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Application\Products\SyncProducts;
+use Src\Catalog\Application\UseCases\SyncProducts;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Date;
 

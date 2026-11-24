@@ -1,7 +1,7 @@
 <?php
 
-use App\Application\Webhooks\OrderCreatedHandler;
-use App\Application\Webhooks\OrderUpdatedHandler;
+use Src\Orders\Infrastructure\Webhooks\OrderCreatedHandler;
+use Src\Orders\Infrastructure\Webhooks\OrderUpdatedHandler;
 
 return [
 

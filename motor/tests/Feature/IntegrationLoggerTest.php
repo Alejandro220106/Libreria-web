@@ -1,11 +1,11 @@
 <?php
 
-use App\Application\Ports\IntegrationLogger;
-use App\Domain\IntegrationLog\LogDirection;
-use App\Domain\IntegrationLog\LogStatus;
-use App\Domain\IntegrationLog\LogSystem;
-use App\Infrastructure\Logging\DatabaseIntegrationLogger;
-use App\Models\IntegrationLog;
+use Src\IntegrationLog\Application\Contracts\IntegrationLogger;
+use Src\IntegrationLog\Domain\Enums\LogDirection;
+use Src\IntegrationLog\Domain\Enums\LogStatus;
+use Src\IntegrationLog\Domain\Enums\LogSystem;
+use Src\IntegrationLog\Infrastructure\Persistence\DatabaseIntegrationLogger;
+use Src\IntegrationLog\Infrastructure\Persistence\Models\IntegrationLog;
 use Tests\Support\RefreshDatabaseAsOwner;
 
 uses(RefreshDatabaseAsOwner::class);
